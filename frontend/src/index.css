@@ -102,7 +102,7 @@ button:focus-visible {
 }
 
 ::placeholder{
-  margin-left: 10px;
+  padding-left: 10px;
 }
 
 /* UIU Healthcare focused styles - no dark mode */
