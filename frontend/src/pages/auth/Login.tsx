@@ -1,108 +1,132 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, AlertCircle, CheckCircle2, User, Shield } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
+import { Eye, EyeOff, User, Shield, Loader2, CheckCircle2 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent } from '../../components/ui/card';
-import { loginSchema, type LoginFormData } from '../../lib/validation/authSchema';
-import { loginUser, clearError } from '../../features/auth/authSlice';
-import { InlineLoader } from '../../components/common/Loader';
 import uiuLogo from '../../assets/logo/uiu_logo.png';
 
-interface RootState {
-    auth: {
-        isAuthenticated: boolean;
-        isLoading: boolean;
-        error: string | null;
-        user: {
-            id: string;
-            uiuId: string;
-            name: string;
-            role: string;
-        } | null;
-    };
+interface LoginFormData {
+    uiuId: string;
+    password: string;
+    rememberMe: boolean;
+}
+
+interface LoginErrors {
+    uiuId?: string;
+    password?: string;
+    rememberMe?: string;
+    general?: string;
 }
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const dispatch = useDispatch();
 
-    const { isAuthenticated, isLoading, error } = useSelector((state: RootState) => state.auth);
+    // Form state
+    const [formData, setFormData] = useState<LoginFormData>({
+        uiuId: '',
+        password: '',
+        rememberMe: false,
+    });
 
+    const [errors, setErrors] = useState<LoginErrors>({});
+    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [loginAttempts, setLoginAttempts] = useState(0);
 
     const from = (location.state as { from?: string })?.from || '/dashboard';
-    const errorFromState = (location.state as { error?: string })?.error;
+    const messageFromState = (location.state as { message?: string })?.message;
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        setValue,
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            uiuId: '',
-            password: '',
-            rememberMe: false,
-        },
-    });
+    // Basic validation function
+    const validateForm = (): boolean => {
+        const newErrors: LoginErrors = {};
 
-    // Clear errors when component mounts or when user starts typing
-    useEffect(() => {
-        if (error) {
-            const timer = setTimeout(() => {
-                dispatch(clearError());
-            }, 5000);
-            return () => clearTimeout(timer);
+        // UIU ID validation
+        if (!formData.uiuId.trim()) {
+            newErrors.uiuId = 'UIU ID is required';
+        } else if (!/^(011\d{5}|STAFF-\d{3}|DOC-\d{3}|ADMIN-\d{3}|admin)$/.test(formData.uiuId)) {
+            newErrors.uiuId = 'Invalid UIU ID format';
         }
-    }, [error, dispatch]);
 
-    // Redirect if already authenticated
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate(from, { replace: true });
+        // Password validation
+        if (!formData.password) {
+            newErrors.password = 'Password is required';
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters';
         }
-    }, [isAuthenticated, navigate, from]);
 
-    // Handle form submission
-    const onSubmit = async (data: LoginFormData) => {
-        try {
-            setLoginAttempts(prev => prev + 1);
-            dispatch(clearError());
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-            const result = await (dispatch as any)(loginUser(data));
-
-            if (loginUser.fulfilled.match(result)) {
-                // Success - navigation will be handled by useEffect
-                console.log('Login successful');
-            }
-        } catch (err) {
-            console.error('Login error:', err);
+    // Handle input changes
+    const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        
+        // Clear error when user starts typing
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
         }
     };
 
-    // Demo credentials helper
+    // Handle demo credentials
     const fillDemoCredentials = (role: 'admin' | 'student' | 'doctor') => {
-        switch (role) {
-            case 'admin':
-                setValue('uiuId', 'admin');
-                setValue('password', 'admin123');
-                break;
-            case 'student':
-                setValue('uiuId', '01112345');
-                setValue('password', 'student123');
-                break;
-            case 'doctor':
-                setValue('uiuId', 'DOC-001');
-                setValue('password', 'doctor123');
-                break;
+        const demoCredentials = {
+            admin: { uiuId: 'admin', password: 'admin123' },
+            student: { uiuId: '01112345', password: 'student123' },
+            doctor: { uiuId: 'DOC-001', password: 'doctor123' },
+        };
+
+        const credentials = demoCredentials[role];
+        setFormData(prev => ({
+            ...prev,
+            uiuId: credentials.uiuId,
+            password: credentials.password,
+        }));
+
+        // Clear any existing errors
+        setErrors({});
+    };
+
+    // Form submission handler
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsLoading(true);
+        setLoginAttempts(prev => prev + 1);
+        
+        try {
+            // Simulate API call - replace with actual login API
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            console.log('Login data:', formData);
+            
+            // Mock successful login
+            const mockUser = {
+                id: '1',
+                uiuId: formData.uiuId,
+                name: formData.uiuId === 'admin' ? 'System Administrator' : 'Student Name',
+                role: formData.uiuId === 'admin' ? 'admin' : 'student'
+            };
+
+            // Store user in localStorage (replace with proper auth implementation)
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('isAuthenticated', 'true');
+            
+            // Navigate to dashboard
+            navigate(from, { replace: true });
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -163,20 +187,19 @@ const Login: React.FC = () => {
 
                         {/* Form Content */}
                         <CardContent className="px-8 pb-8 space-y-6 flex-1 flex flex-col justify-center">
-                            {/* Error from navigation state */}
-                            {errorFromState && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
-                                    <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                                    <p className="text-sm text-red-700">{errorFromState}</p>
+                            {/* Success Message */}
+                            {messageFromState && (
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start space-x-2">
+                                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                    <p className="text-sm text-green-700">{messageFromState}</p>
                                 </div>
                             )}
 
                             {/* Form Error */}
-                            {error && (
+                            {errors.general && (
                                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
-                                    <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                                     <div className="flex-1">
-                                        <p className="text-sm text-red-700">{error}</p>
+                                        <p className="text-sm text-red-700">{errors.general}</p>
                                         {loginAttempts >= 3 && (
                                             <p className="text-xs text-red-600 mt-1">
                                                 Too many failed attempts. Please check your credentials or contact support.
@@ -186,7 +209,7 @@ const Login: React.FC = () => {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* Login Credentials Section */}
                                 <div className="space-y-4">
                                     <h3 className="text-sm font-medium text-gray-800 flex items-center">
@@ -203,12 +226,13 @@ const Login: React.FC = () => {
                                             id="uiuId"
                                             type="text"
                                             placeholder="  Enter your UIU ID (e.g., 01112345)"
-                                            {...register('uiuId')}
+                                            value={formData.uiuId}
+                                            onChange={(e) => handleInputChange('uiuId', e.target.value)}
                                             className={errors.uiuId ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
                                         <div className="h-5">
                                             {errors.uiuId && (
-                                                <p className="text-sm text-red-600">{errors.uiuId.message}</p>
+                                                <p className="text-sm text-red-600">{errors.uiuId}</p>
                                             )}
                                         </div>
                                     </div>
@@ -224,7 +248,8 @@ const Login: React.FC = () => {
                                                 id="password"
                                                 type={showPassword ? 'text' : 'password'}
                                                 placeholder="  Enter your password"
-                                                {...register('password')}
+                                                value={formData.password}
+                                                onChange={(e) => handleInputChange('password', e.target.value)}
                                                 className={errors.password ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
                                             />
                                             <button
@@ -241,7 +266,7 @@ const Login: React.FC = () => {
                                         </div>
                                         <div className="h-5">
                                             {errors.password && (
-                                                <p className="text-sm text-red-600">{errors.password.message}</p>
+                                                <p className="text-sm text-red-600">{errors.password}</p>
                                             )}
                                         </div>
                                     </div>
@@ -253,7 +278,8 @@ const Login: React.FC = () => {
                                         <input
                                             id="rememberMe"
                                             type="checkbox"
-                                            {...register('rememberMe')}
+                                            checked={formData.rememberMe}
+                                            onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
                                             className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                                         />
                                         <label htmlFor="rememberMe" className="text-sm text-gray-600">
@@ -272,11 +298,11 @@ const Login: React.FC = () => {
                                 <Button
                                     type="submit"
                                     className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
-                                    disabled={isLoading || isSubmitting}
+                                    disabled={isLoading}
                                 >
-                                    {(isLoading || isSubmitting) ? (
+                                    {isLoading ? (
                                         <>
-                                            <InlineLoader className="mr-2" />
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             Signing in...
                                         </>
                                     ) : (

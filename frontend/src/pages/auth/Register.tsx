@@ -1,74 +1,134 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch } from '../../redux/store';
 import {
     Eye,
     EyeOff,
-    AlertCircle,
     CheckCircle2,
     User,
-    Mail,
-    Phone,
-    Shield,
     Loader2,
-    X
+    X,
+    Shield
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent } from '../../components/ui/card';
-import { registerSchema, type RegisterFormData } from '../../lib/validation/authSchema';
-import { registerUser, clearError } from '../../features/auth/authSlice';
 import { InlineLoader } from '../../components/common/Loader';
-import { toast } from '../../hooks/useToast';
-import { AuthService } from '../../features/auth/AuthService';
 import uiuLogo from '../../assets/logo/uiu_logo.png';
 
-interface RootState {
-    auth: {
-        isLoading: boolean;
-        error: string | null;
-    };
+interface FormData {
+    name: string;
+    email: string;
+    uiuId: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    acceptTerms: boolean;
+}
+
+interface FormErrors {
+    name?: string;
+    email?: string;
+    uiuId?: string;
+    phone?: string;
+    password?: string;
+    confirmPassword?: string;
+    acceptTerms?: string;
 }
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
 
-    const { isLoading, error } = useSelector((state: RootState) => state.auth);
+    // Form state
+    const [formData, setFormData] = useState<FormData>({
+        name: '',
+        email: '',
+        uiuId: '',
+        phone: '',
+        password: '',
+        confirmPassword: '',
+        acceptTerms: false,
+    });
 
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
     const [uiuIdAvailability, setUiuIdAvailability] = useState<'checking' | 'available' | 'unavailable' | null>(null);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        watch,
-    } = useForm<RegisterFormData>({
-        resolver: zodResolver(registerSchema),
-        defaultValues: {
-            name: '',
-            email: '',
-            uiuId: '',
-            role: 'student',
-            password: '',
-            confirmPassword: '',
-            phone: '',
-            acceptTerms: false,
-        },
-    });
+    // Basic validation functions
+    const validateForm = (): boolean => {
+        const newErrors: FormErrors = {};
 
-    const watchedUIUId = watch('uiuId');
+        // Name validation
+        if (!formData.name.trim()) {
+            newErrors.name = 'Full name is required';
+        } else if (formData.name.trim().length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
+        } else if (!/^[a-zA-Z\s.'-]+$/.test(formData.name)) {
+            newErrors.name = 'Name can only contain letters, spaces, dots, hyphens, and apostrophes';
+        }
 
-    // Remove auto-generation - user should input their own UIU email
+        // UIU ID validation
+        if (!formData.uiuId.trim()) {
+            newErrors.uiuId = 'UIU ID is required';
+        } else if (!/^011\d{5}$/.test(formData.uiuId)) {
+            newErrors.uiuId = 'Invalid UIU ID format. Use: 011xxxxx (8 digits total)';
+        }
 
-    // Debounced UIU ID availability check
+        // Email validation
+        if (!formData.email.trim()) {
+            newErrors.email = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = 'Invalid email format';
+        } else if (!formData.email.includes('@student.uiu.ac.bd') && !formData.email.includes('@uiu.ac.bd')) {
+            newErrors.email = 'Email must be a valid UIU email address (@uiu.ac.bd or @student.uiu.ac.bd)';
+        }
+
+        // Phone validation
+        if (!formData.phone.trim()) {
+            newErrors.phone = 'Phone number is required';
+        } else if (!/^(\+?880|0)?1[3-9]\d{8}$/.test(formData.phone.replace(/[-\s]/g, ''))) {
+            newErrors.phone = 'Invalid phone number format. Use: +880-1xxxxxxxxx or 01xxxxxxxxx';
+        }
+
+        // Password validation
+        if (!formData.password) {
+            newErrors.password = 'Password is required';
+        } else if (formData.password.length < 8) {
+            newErrors.password = 'Password must be at least 8 characters';
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(formData.password)) {
+            newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
+        }
+
+        // Confirm password validation
+        if (!formData.confirmPassword) {
+            newErrors.confirmPassword = 'Password confirmation is required';
+        } else if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match';
+        }
+
+        // Terms validation
+        if (!formData.acceptTerms) {
+            newErrors.acceptTerms = 'You must accept the terms and conditions';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    // Handle input changes
+    const handleInputChange = (field: keyof FormData, value: string | boolean) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        
+        // Clear error when user starts typing
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
+        }
+    };
+
+    // UIU ID availability check
     const checkUIUIdAvailability = useCallback(
         async (uiuId: string) => {
             if (!uiuId || uiuId.length !== 8) {
@@ -78,8 +138,12 @@ const Register: React.FC = () => {
 
             setUiuIdAvailability('checking');
             try {
-                const result = await AuthService.checkUIUIdAvailability(uiuId);
-                setUiuIdAvailability(result.available ? 'available' : 'unavailable');
+                // Simulate API call - replace with actual API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Mock availability check
+                const isAvailable = Math.random() > 0.3; // 70% chance available
+                setUiuIdAvailability(isAvailable ? 'available' : 'unavailable');
             } catch (error) {
                 console.error('UIU ID check error:', error);
                 setUiuIdAvailability(null);
@@ -91,49 +155,47 @@ const Register: React.FC = () => {
     // Debounce UIU ID checking
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            if (watchedUIUId) {
-                checkUIUIdAvailability(watchedUIUId);
+            if (formData.uiuId && formData.uiuId.length === 8) {
+                checkUIUIdAvailability(formData.uiuId);
             }
-        }, 500); // 500ms debounce
+        }, 500);
 
         return () => clearTimeout(timeoutId);
-    }, [watchedUIUId, checkUIUIdAvailability]);
-
-    // Clear errors when component mounts
-    useEffect(() => {
-        dispatch(clearError());
-    }, [dispatch]);
+    }, [formData.uiuId, checkUIUIdAvailability]);
 
     // Handle form submission
-    const onSubmit = async (data: RegisterFormData) => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsLoading(true);
+        
         try {
-            dispatch(clearError());
-
-            const result = await dispatch(registerUser(data));
-
-            if (registerUser.fulfilled.match(result)) {
-                setRegistrationSuccess(true);
-                toast.success({
-                    title: 'Registration Successful!',
-                    description: 'Please check your UIU email for a verification link.'
+            // Simulate API call - replace with actual registration API
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            console.log('Registration data:', formData);
+            
+            setRegistrationSuccess(true);
+            
+            // Navigate to login after success
+            setTimeout(() => {
+                navigate('/auth/login', {
+                    state: {
+                        message: 'Registration successful! Please login with your credentials.',
+                        email: formData.email
+                    }
                 });
-
-                // Navigate after showing success message
-                setTimeout(() => {
-                    navigate('/auth/login', {
-                        state: {
-                            message: 'Registration successful! Please check your email for verification.',
-                            email: data.email
-                        }
-                    });
-                }, 3000);
-            }
-        } catch (err) {
-            console.error('Registration error:', err);
-            toast.error({
-                title: 'Registration Failed',
-                description: 'An unexpected error occurred. Please try again.'
-            });
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Registration error:', error);
+            setErrors({ ...errors, acceptTerms: 'Registration failed. Please try again.' });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -237,15 +299,7 @@ const Register: React.FC = () => {
                         {/* Form Content */}
                         <CardContent className="px-8 pb-8 my-3.5 space-y-6 flex-1 overflow-y-auto">
 
-                            {/* Form Error */}
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
-                                    <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                                    <p className="text-sm text-red-700">{error}</p>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <form onSubmit={handleSubmit} className="space-y-4">
 
                                 {/* Personal Information */}
                                 <div className="space-y-5" style={{ marginTop: 20, }}>
@@ -263,12 +317,15 @@ const Register: React.FC = () => {
                                             id="name"
                                             type="text"
                                             placeholder="  Enter your full name"
-                                            {...register('name')}
+                                            value={formData.name}
+                                            onChange={(e) => handleInputChange('name', e.target.value)}
                                             className={errors.name ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
-                                        {errors.name && (
-                                            <p className="text-sm text-red-600">{errors.name.message}</p>
-                                        )}
+                                        <div className="h-5">
+                                            {errors.name && (
+                                                <p className="text-sm text-red-600">{errors.name}</p>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* UIU ID */}
@@ -281,7 +338,8 @@ const Register: React.FC = () => {
                                                 id="uiuId"
                                                 type="text"
                                                 placeholder="  Enter your UIU ID (e.g., 01112345)"
-                                                {...register('uiuId')}
+                                                value={formData.uiuId}
+                                                onChange={(e) => handleInputChange('uiuId', e.target.value)}
                                                 className={`${errors.uiuId ? 'border-red-500' : ''} ${uiuIdAvailability === 'available' ? 'border-green-500' : ''
                                                     } ${uiuIdAvailability === 'unavailable' ? 'border-red-500' : ''
                                                     } pr-10 pl-4`}
@@ -298,15 +356,20 @@ const Register: React.FC = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        {errors.uiuId && (
-                                            <p className="text-sm text-red-600">{errors.uiuId.message}</p>
-                                        )}
-                                        {uiuIdAvailability === 'unavailable' && (
-                                            <p className="text-sm text-red-600">This UIU ID is already registered</p>
-                                        )}
-                                        {uiuIdAvailability === 'available' && (
-                                            <p className="text-sm text-green-600">UIU ID is available</p>
-                                        )}
+                                        <div className="h-10 space-y-1">
+                                            {errors.uiuId && (
+                                                <p className="text-sm text-red-600">{errors.uiuId}</p>
+                                            )}
+                                            {uiuIdAvailability === 'unavailable' && (
+                                                <p className="text-sm text-red-600">This UIU ID is already registered</p>
+                                            )}
+                                            {uiuIdAvailability === 'available' && (
+                                                <p className="text-sm text-green-600">UIU ID is available</p>
+                                            )}
+                                            <p className="text-xs text-gray-500">
+                                                Format: 011xxxxx (8 digits total)
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* Email */}
@@ -317,16 +380,21 @@ const Register: React.FC = () => {
                                         <Input
                                             id="email"
                                             type="email"
-                                            placeholder="  Enter your UIU email"
-                                            {...register('email')}
+                                            placeholder="  Enter your UIU email (e.g., yourname@student.uiu.ac.bd)"
+                                            value={formData.email}
+                                            onChange={(e) => handleInputChange('email', e.target.value)}
                                             className={errors.email ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
-                                        {errors.email && (
-                                            <p className="text-sm text-red-600">{errors.email.message}</p>
-                                        )}
-                                        <p className="text-xs text-gray-500">
-                                            Please use your official UIU email address
-                                        </p>
+                                        <div className="h-8 space-y-1">
+                                            {errors.email && (
+                                                <p className="text-sm text-red-600">{errors.email}</p>
+                                            )}
+                                            {!errors.email && (
+                                                <p className="text-xs text-gray-500">
+                                                    Please use your official UIU email address
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -341,11 +409,12 @@ const Register: React.FC = () => {
                                             id="phone"
                                             type="tel"
                                             placeholder="  +880-1xxxxxxxxx"
-                                            {...register('phone')}
+                                            value={formData.phone}
+                                            onChange={(e) => handleInputChange('phone', e.target.value)}
                                             className={errors.phone ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
                                         {errors.phone && (
-                                            <p className="text-sm text-red-600">{errors.phone.message}</p>
+                                            <p className="text-sm text-red-600">{errors.phone}</p>
                                         )}
                                     </div>
                                 </div>
@@ -367,7 +436,8 @@ const Register: React.FC = () => {
                                                 id="password"
                                                 type={showPassword ? 'text' : 'password'}
                                                 placeholder="  Create a strong password"
-                                                {...register('password')}
+                                                value={formData.password}
+                                                onChange={(e) => handleInputChange('password', e.target.value)}
                                                 className={errors.password ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
                                             />
                                             <button
@@ -383,7 +453,7 @@ const Register: React.FC = () => {
                                             </button>
                                         </div>
                                         {errors.password && (
-                                            <p className="text-sm text-red-600">{errors.password.message}</p>
+                                            <p className="text-sm text-red-600">{errors.password}</p>
                                         )}
                                         <div className="text-xs text-gray-500 space-y-1">
                                             <p>Password must contain:</p>
@@ -405,7 +475,8 @@ const Register: React.FC = () => {
                                                 id="confirmPassword"
                                                 type={showConfirmPassword ? 'text' : 'password'}
                                                 placeholder="  Confirm your password"
-                                                {...register('confirmPassword')}
+                                                value={formData.confirmPassword}
+                                                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                                                 className={errors.confirmPassword ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
                                             />
                                             <button
@@ -421,7 +492,7 @@ const Register: React.FC = () => {
                                             </button>
                                         </div>
                                         {errors.confirmPassword && (
-                                            <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+                                            <p className="text-sm text-red-600">{errors.confirmPassword}</p>
                                         )}
                                     </div>
                                 </div>
@@ -432,7 +503,8 @@ const Register: React.FC = () => {
                                         <input
                                             id="acceptTerms"
                                             type="checkbox"
-                                            {...register('acceptTerms')}
+                                            checked={formData.acceptTerms}
+                                            onChange={(e) => handleInputChange('acceptTerms', e.target.checked)}
                                             className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mt-0.5"
                                         />
                                         <label htmlFor="acceptTerms" className="text-sm text-gray-600">
@@ -447,18 +519,17 @@ const Register: React.FC = () => {
                                         </label>
                                     </div>
                                     {errors.acceptTerms && (
-                                        <p className="text-sm text-red-600 ml-6">{errors.acceptTerms.message}</p>
+                                        <p className="text-sm text-red-600 ml-6">{errors.acceptTerms}</p>
                                     )}
                                 </div>
 
                                 {/* Submit Button */}
                                 <Button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
-                                    disabled={isLoading || isSubmitting}
-                                    style={{ marginTop: 10 }}
+                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0 mt-2"
+                                    disabled={isLoading}
                                 >
-                                    {(isLoading || isSubmitting) ? (
+                                    {isLoading ? (
                                         <>
                                             <InlineLoader className="mr-2" />
                                             Creating Account...

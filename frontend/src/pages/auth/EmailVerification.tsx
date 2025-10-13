@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch } from '../../redux/store';
 import {
     CheckCircle2,
     AlertCircle,
@@ -14,24 +12,15 @@ import {
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
-import { verifyEmail, resendVerificationEmail, clearError } from '../../features/auth/authSlice';
 import { InlineLoader } from '../../components/common/Loader';
-import { toast } from '../../hooks/useToast';
-
-interface RootState {
-    auth: {
-        isLoading: boolean;
-        error: string | null;
-    };
-}
+// import { toast } from 'sonner';
 
 const EmailVerification: React.FC = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
     const [searchParams] = useSearchParams();
     
-    const { isLoading, error } = useSelector((state: RootState) => state.auth);
-    
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'failed' | 'expired'>('pending');
     const [emailForResend, setEmailForResend] = useState('');
     const [resendLoading, setResendLoading] = useState(false);
@@ -46,21 +35,19 @@ const EmailVerification: React.FC = () => {
         }
     }, [email]);
 
-    // Clear errors when component mounts
-    useEffect(() => {
-        dispatch(clearError());
-    }, [dispatch]);
-
     const handleVerification = useCallback(async (verificationToken: string) => {
         try {
-            const result = await dispatch(verifyEmail(verificationToken));
+            setIsLoading(true);
+            setError(null);
             
-            if (verifyEmail.fulfilled.match(result)) {
+            // Mock verify email function - simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Mock validation: token should be at least 10 characters for success
+            const isValidToken = verificationToken.length >= 10;
+            
+            if (isValidToken) {
                 setVerificationStatus('success');
-                toast.success({
-                    title: 'Email Verified!',
-                    description: 'Your account has been verified successfully.'
-                });
                 
                 // Redirect to login after successful verification
                 setTimeout(() => {
@@ -73,12 +60,16 @@ const EmailVerification: React.FC = () => {
                 }, 3000);
             } else {
                 setVerificationStatus('failed');
+                setError('Invalid or expired verification token');
             }
         } catch (err) {
             console.error('Verification error:', err);
             setVerificationStatus('failed');
+            setError('An error occurred during verification');
+        } finally {
+            setIsLoading(false);
         }
-    }, [dispatch, navigate]);
+    }, [navigate]);
 
     useEffect(() => {
         // Auto-verify if token is present in URL
@@ -89,23 +80,28 @@ const EmailVerification: React.FC = () => {
 
     const handleResendVerification = async () => {
         if (!emailForResend.trim()) {
-            toast.error('Please enter your email address');
+            setError('Please enter your email address');
             return;
         }
 
         try {
             setResendLoading(true);
-            const result = await dispatch(resendVerificationEmail(emailForResend));
+            setError(null);
             
-            if (resendVerificationEmail.fulfilled.match(result)) {
-                toast.success({
-                    title: 'Verification Email Sent!',
-                    description: 'Please check your inbox for the verification link.'
-                });
+            // Mock resend verification email - simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (emailRegex.test(emailForResend)) {
+                // Success - could set a success message state here
+                setError('Verification email sent! Please check your inbox.');
+            } else {
+                setError('Invalid email address');
             }
         } catch (err) {
             console.error('Resend verification error:', err);
-            toast.error('Failed to send verification email. Please try again.');
+            setError('Failed to send verification email. Please try again.');
         } finally {
             setResendLoading(false);
         }
