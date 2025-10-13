@@ -25,6 +25,7 @@ import { registerUser, clearError } from '../../features/auth/authSlice';
 import { InlineLoader } from '../../components/common/Loader';
 import { toast } from '../../hooks/useToast';
 import { AuthService } from '../../features/auth/AuthService';
+import uiuLogo from '../../assets/logo/uiu_logo.png';
 
 interface RootState {
     auth: {
@@ -49,7 +50,6 @@ const Register: React.FC = () => {
         handleSubmit,
         formState: { errors, isSubmitting },
         watch,
-        setValue,
     } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -66,13 +66,7 @@ const Register: React.FC = () => {
 
     const watchedUIUId = watch('uiuId');
 
-    // Auto-generate email based on UIU ID
-    useEffect(() => {
-        if (watchedUIUId && watchedUIUId.length === 8 && watchedUIUId.startsWith('011')) {
-            const generatedEmail = `${watchedUIUId}@student.uiu.ac.bd`;
-            setValue('email', generatedEmail);
-        }
-    }, [watchedUIUId, setValue]);
+    // Remove auto-generation - user should input their own UIU email
 
     // Debounced UIU ID availability check
     const checkUIUIdAvailability = useCallback(
@@ -146,12 +140,12 @@ const Register: React.FC = () => {
     // Success screen
     if (registrationSuccess) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 p-6">
                 {/* Floating Success Card */}
                 <div className="relative w-full max-w-lg mx-auto">
                     {/* Background blur effects for floating appearance */}
-                    <div className="absolute -inset-6 bg-gradient-to-r from-green-400 to-blue-400 rounded-3xl opacity-20 blur-xl animate-pulse"></div>
-                    <div className="absolute -inset-3 bg-gradient-to-r from-green-300 to-green-400 rounded-2xl opacity-30 blur-lg"></div>
+                    <div className="absolute -inset-6 bg-gradient-to-r from-green-400 to-orange-400 rounded-3xl opacity-20 blur-xl animate-pulse"></div>
+                    <div className="absolute -inset-3 bg-gradient-to-r from-green-300 to-orange-300 rounded-2xl opacity-30 blur-lg"></div>
 
                     {/* Main floating success card */}
                     <Card className="relative w-full bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden">
@@ -165,9 +159,9 @@ const Register: React.FC = () => {
                                     Your account has been created successfully. Please check your UIU email for a verification link.
                                 </p>
                             </div>
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 text-left">
-                                <p className="text-sm font-medium text-blue-800 mb-2">Next Steps:</p>
-                                <ol className="text-sm text-blue-700 list-decimal list-inside space-y-1">
+                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-4 text-left">
+                                <p className="text-sm font-medium text-orange-800 mb-2">Next Steps:</p>
+                                <ol className="text-sm text-orange-700 list-decimal list-inside space-y-1">
                                     <li>Check your UIU email inbox</li>
                                     <li>Click the verification link</li>
                                     <li>Return to login with your credentials</li>
@@ -175,7 +169,7 @@ const Register: React.FC = () => {
                             </div>
                             <Button
                                 onClick={() => navigate('/auth/login')}
-                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+                                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
                             >
                                 Go to Login
                             </Button>
@@ -187,53 +181,61 @@ const Register: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
-                {/* Floating Registration Card */}
-                <div className="w-full justify-center items-center relative">
-                    {/* Background blur effects for floating appearance */}
-                    <div className="absolute -inset-6 bg-gradient-to-r from-blue-400 to-purple-400 rounded-3xl opacity-20 blur-xl animate-pulse"></div>
-                    <div className="absolute -inset-3 bg-gradient-to-r from-blue-300 to-indigo-300 rounded-2xl opacity-30 blur-lg"></div>
+        <div className="min-h-screen max-w-lvw flex items-center justify-center p-6">
+            {/* Floating Registration Card */}
+            <div className="w-full relative">
+                {/* Background blur effects */}
+                {/* <div className="absolute -inset-6 bg-gradient-to-r from-orange-200 to-orange-300 rounded-3xl opacity-20 blur-xl animate-pulse"></div> */}
+                <div className="absolute -inset-3 bg-gradient-to-r from-orange-200 to-orange-300 rounded-2xl opacity-30 blur-lg"></div>
 
-                    {/* Main floating card - increased size */}
-                    <Card className="relative w-full bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
-                    {/* Left side - Image placeholder */}
-                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8">
-                        <div className="text-center text-white space-y-6">
-                            <div className="w-32 h-32 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto border border-white/30">
-                                <span className="text-white font-bold text-4xl">UIU</span>
+                {/* Main floating card */}
+                <Card className="relative w-full bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
+                    {/* Left side */}
+                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-300 via-orange-600 to-orange-500 p-8">
+                        <div className="w-full max-w-sm mx-auto text-center text-white space-y-6">
+                            <div className="w-40 h-40 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto border border-white/30 p-4">
+                                <img
+                                    src={uiuLogo}
+                                    alt="UIU Logo"
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
-                            <div className="space-y-4">
-                                <h2 className="text-3xl font-bold">Welcome to UIU Healthcare</h2>
-                                <p className="text-blue-100 text-lg">Join our comprehensive healthcare management system</p>
+                            <div className="space-y-4 text-center">
+                                <h2 className="text-3xl font-bold text-center">Welcome to UIU Healthcare</h2>
+                                <p className="text-white/90 text-lg text-center leading-relaxed break-words">Join our comprehensive healthcare management system</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right side - Registration Form */}
-                    <div className="flex flex-col">
-                        {/* Mobile Brand Header - Only visible on mobile */}
-                        <div className="lg:hidden text-center space-y-4 pt-8 pb-4 px-8 bg-gradient-to-br from-blue-600 to-indigo-700">
+                    {/* Right side */}
+                    <div className="flex flex-col justify-center items-center max-w-svw">
+                        {/* Mobile Brand Header */}
+                        <div className="lg:hidden text-center space-y-4 pt-8 pb-4 px-8 bg-gradient-to-br from-orange-500 to-orange-600">
                             <div className="flex justify-center">
-                                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-                                    <span className="text-white font-bold text-xl">UIU</span>
+                                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30 p-2">
+                                    <img
+                                        src={uiuLogo}
+                                        alt="UIU Logo"
+                                        className="w-full h-full object-contain"
+                                    />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <h1 className="text-2xl font-bold text-white">UIU Healthcare</h1>
-                                <p className="text-blue-100">Create your account</p>
+                            <div className="space-y-2 text-center">
+                                <h1 className="text-2xl font-bold text-white text-center">UIU Healthcare</h1>
+                                <p className="text-white/90 text-center">Create your account</p>
                             </div>
                         </div>
 
-                        {/* Desktop Header - Only visible on desktop */}
+                        {/* Desktop Header */}
                         <div className="hidden lg:block text-center pt-8 pb-4 px-8">
                             <div className="space-y-2">
-                                <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-                                <p className="text-gray-600">Join UIU Healthcare System</p>
+                                {/* <h2 className="text-2xl font-bold text-gray-900">Create Account</h2> */}
+                                <h2 className="text-2xl font-medium text-gray-900" style={{ marginTop: 20 }}>Join UIU Healthcare System</h2>
                             </div>
                         </div>
 
                         {/* Form Content */}
-                        <CardContent className="px-8 pb-8 space-y-6 flex-1 overflow-y-auto">
+                        <CardContent className="px-8 pb-8 my-3.5 space-y-6 flex-1 overflow-y-auto">
 
                             {/* Form Error */}
                             {error && (
@@ -246,23 +248,23 @@ const Register: React.FC = () => {
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
                                 {/* Personal Information */}
-                                <div className="space-y-4">
+                                <div className="space-y-5" style={{ marginTop: 20, }}>
                                     <h3 className="text-sm font-medium text-gray-800 flex items-center">
-                                        <User className="h-4 w-4 mr-2 text-blue-600" />
+                                        <User className="h-4 w-4 mr-2 text-orange-600" />
                                         Personal Information
                                     </h3>
 
                                     {/* Full Name */}
                                     <div className="space-y-2">
                                         <label htmlFor="name" className="text-sm font-medium text-gray-800">
-                                            Full Name *
+                                            Full Name <span className='text-red-900'>*</span>
                                         </label>
                                         <Input
                                             id="name"
                                             type="text"
-                                            placeholder="Enter your full name"
+                                            placeholder="  Enter your full name"
                                             {...register('name')}
-                                            className={errors.name ? 'border-red-500' : ''}
+                                            className={errors.name ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
                                         {errors.name && (
                                             <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -272,17 +274,17 @@ const Register: React.FC = () => {
                                     {/* UIU ID */}
                                     <div className="space-y-2">
                                         <label htmlFor="uiuId" className="text-sm font-medium text-gray-800">
-                                            UIU Student ID *
+                                            UIU Student ID <span className='text-red-900'>*</span>
                                         </label>
                                         <div className="relative">
                                             <Input
                                                 id="uiuId"
                                                 type="text"
-                                                placeholder="Enter your UIU ID (e.g., 01112345)"
+                                                placeholder="  Enter your UIU ID (e.g., 01112345)"
                                                 {...register('uiuId')}
                                                 className={`${errors.uiuId ? 'border-red-500' : ''} ${uiuIdAvailability === 'available' ? 'border-green-500' : ''
                                                     } ${uiuIdAvailability === 'unavailable' ? 'border-red-500' : ''
-                                                    } pr-10`}
+                                                    } pr-10 pl-4`}
                                             />
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                                                 {uiuIdAvailability === 'checking' && (
@@ -305,44 +307,31 @@ const Register: React.FC = () => {
                                         {uiuIdAvailability === 'available' && (
                                             <p className="text-sm text-green-600">UIU ID is available</p>
                                         )}
-                                        <p className="text-xs text-gray-500">
-                                            Format: 011xxxxxx (8 digits total)
-                                        </p>
                                     </div>
 
                                     {/* Email */}
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 mt-5">
                                         <label htmlFor="email" className="text-sm font-medium text-gray-800 flex items-center">
-                                            <Mail className="h-4 w-4 mr-1 text-blue-600" />
                                             UIU Email Address *
                                         </label>
                                         <Input
                                             id="email"
                                             type="email"
-                                            placeholder="Your UIU email will be auto-generated"
+                                            placeholder="  Enter your UIU email"
                                             {...register('email')}
-                                            className={errors.email ? 'border-red-500' : ''}
-                                            readOnly={watchedUIUId?.length === 8}
+                                            className={errors.email ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
                                         {errors.email && (
                                             <p className="text-sm text-red-600">{errors.email.message}</p>
                                         )}
-                                        {watchedUIUId?.length === 8 && (
-                                            <p className="text-xs text-green-600 flex items-center">
-                                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                Email auto-generated from UIU ID
-                                            </p>
-                                        )}
+                                        <p className="text-xs text-gray-500">
+                                            Please use your official UIU email address
+                                        </p>
                                     </div>
                                 </div>
 
                                 {/* Contact Information */}
                                 <div className="space-y-4">
-                                    <h3 className="text-sm font-medium text-gray-800 flex items-center">
-                                        <Phone className="h-4 w-4 mr-2 text-blue-600" />
-                                        Contact Information
-                                    </h3>
-
                                     {/* Phone */}
                                     <div className="space-y-2">
                                         <label htmlFor="phone" className="text-sm font-medium text-gray-800">
@@ -351,9 +340,9 @@ const Register: React.FC = () => {
                                         <Input
                                             id="phone"
                                             type="tel"
-                                            placeholder="01xxxxxxxxx or +880-1xxxxxxxxx"
+                                            placeholder="  +880-1xxxxxxxxx"
                                             {...register('phone')}
-                                            className={errors.phone ? 'border-red-500' : ''}
+                                            className={errors.phone ? 'border-red-500 pl-4' : 'pl-4'}
                                         />
                                         {errors.phone && (
                                             <p className="text-sm text-red-600">{errors.phone.message}</p>
@@ -362,9 +351,9 @@ const Register: React.FC = () => {
                                 </div>
 
                                 {/* Security */}
-                                <div className="space-y-4">
+                                <div className="space-y-4" style={{ marginTop: 20 }}>
                                     <h3 className="text-sm font-medium text-gray-800 flex items-center">
-                                        <Shield className="h-4 w-4 mr-2 text-blue-600" />
+                                        <Shield className="h-4 w-4 mr-2 text-orange-600" />
                                         Security
                                     </h3>
 
@@ -377,14 +366,14 @@ const Register: React.FC = () => {
                                             <Input
                                                 id="password"
                                                 type={showPassword ? 'text' : 'password'}
-                                                placeholder="Create a strong password"
+                                                placeholder="  Create a strong password"
                                                 {...register('password')}
-                                                className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                                                className={errors.password ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-blue-600 transition-colors"
+                                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-orange-600 transition-colors"
                                             >
                                                 {showPassword ? (
                                                     <EyeOff className="h-4 w-4" />
@@ -415,14 +404,14 @@ const Register: React.FC = () => {
                                             <Input
                                                 id="confirmPassword"
                                                 type={showConfirmPassword ? 'text' : 'password'}
-                                                placeholder="Confirm your password"
+                                                placeholder="  Confirm your password"
                                                 {...register('confirmPassword')}
-                                                className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                                                className={errors.confirmPassword ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-blue-600 transition-colors"
+                                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-orange-600 transition-colors"
                                             >
                                                 {showConfirmPassword ? (
                                                     <EyeOff className="h-4 w-4" />
@@ -438,21 +427,21 @@ const Register: React.FC = () => {
                                 </div>
 
                                 {/* Terms and Conditions */}
-                                <div className="space-y-2">
+                                <div className="space-y-2" style={{ marginTop: 20 }}>
                                     <div className="flex items-start space-x-2">
                                         <input
                                             id="acceptTerms"
                                             type="checkbox"
                                             {...register('acceptTerms')}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
+                                            className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mt-0.5"
                                         />
                                         <label htmlFor="acceptTerms" className="text-sm text-gray-600">
                                             I accept the{' '}
-                                            <Link to="/terms" className="text-blue-600 hover:text-blue-700 hover:underline transition-colors">
+                                            <Link to="/terms" className="text-orange-600 hover:text-orange-700 hover:underline transition-colors">
                                                 Terms of Service
                                             </Link>{' '}
                                             and{' '}
-                                            <Link to="/privacy" className="text-blue-600 hover:text-blue-700 hover:underline transition-colors">
+                                            <Link to="/privacy" className="text-orange-600 hover:text-orange-700 hover:underline transition-colors">
                                                 Privacy Policy
                                             </Link>
                                         </label>
@@ -465,8 +454,9 @@ const Register: React.FC = () => {
                                 {/* Submit Button */}
                                 <Button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
                                     disabled={isLoading || isSubmitting}
+                                    style={{ marginTop: 10 }}
                                 >
                                     {(isLoading || isSubmitting) ? (
                                         <>
@@ -485,7 +475,7 @@ const Register: React.FC = () => {
                                     Already have an account?{' '}
                                     <Link
                                         to="/auth/login"
-                                        className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors"
+                                        className="text-orange-600 hover:text-orange-700 font-medium hover:underline transition-colors"
                                     >
                                         Sign in here
                                     </Link>
@@ -496,7 +486,7 @@ const Register: React.FC = () => {
                 </Card>
 
                 {/* Footer - Outside floating card */}
-                <p className="text-center text-xs text-gray-500 mt-6">
+                <p className="text-center text-xs text-gray-500 mt-6"style={{ marginTop: 25 }}>
                     © 2025 United International University. All rights reserved.
                 </p>
             </div>

@@ -7,7 +7,7 @@ import { store } from './redux/store';
 // Import pages
 import Register from './pages/auth/Register';
 import EmailVerification from './pages/auth/EmailVerification';
-// import Login from './pages/auth/Login';
+import Login from './pages/auth/Login';
 
 // Import UI components
 import { Toaster } from './components/ui/toaster';
@@ -25,7 +25,7 @@ function App() {
 
                         {/* Default redirect */}
                         <Route path="/" element={<Register />} />
-                        <Route path="*" element={<Register />} />
+                        <Route path="/login" element={<Login />} />
                     </Routes>
 
                     {/* Global Toaster */}
