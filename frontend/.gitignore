@@ -1,41 +1,19 @@
-# Dependencies
-node_modules/
-/.pnp
-.pnp.js
-
-# Testing
-/coverage
-*.lcov
-
-# Production Build
-/build
-/dist
-/.vite
-.vite/
-
-# Environment Variables
-.env
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-*.env
-*.env.local
-
 # Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editor Directories and Files
-.vscode/
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
 .vscode/*
-settings.json
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -44,42 +22,3 @@ settings.json
 *.njsproj
 *.sln
 *.sw?
-
-# Vite
-dist-ssr
-*.local
-
-# TypeScript
-*.tsbuildinfo
-
-# React Build
-/out/
-
-# Storybook
-storybook-static
-
-# Cache
-.cache/
-.parcel-cache/
-.eslintcache
-.stylelintcache
-
-# Temporary files
-*.tmp
-*.temp
-.temp/
-
-# Public uploads (if any)
-/public/uploads/
-
-# Generated files
-/src/generated/
-
-# Source maps
-*.map
-
-# Package manager lock files (optional - some prefer to keep these)
-# Uncomment if you want to ignore them
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml

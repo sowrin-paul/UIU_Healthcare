@@ -121,7 +121,7 @@ const Register: React.FC = () => {
     // Handle input changes
     const handleInputChange = (field: keyof FormData, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-
+        
         // Clear error when user starts typing
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -138,10 +138,11 @@ const Register: React.FC = () => {
 
             setUiuIdAvailability('checking');
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // needed to replace
-
+                // Simulate API call - replace with actual API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
                 // Mock availability check
-                const isAvailable = Math.random() > 0.3;
+                const isAvailable = Math.random() > 0.3; // 70% chance available
                 setUiuIdAvailability(isAvailable ? 'available' : 'unavailable');
             } catch (error) {
                 console.error('UIU ID check error:', error);
@@ -151,7 +152,7 @@ const Register: React.FC = () => {
         []
     );
 
-    // UIU ID checking
+    // Debounce UIU ID checking
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (formData.uiuId && formData.uiuId.length === 8) {
@@ -165,20 +166,21 @@ const Register: React.FC = () => {
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        
         if (!validateForm()) {
             return;
         }
 
         setIsLoading(true);
-
+        
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // needed to replace
-
+            // Simulate API call - replace with actual registration API
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
             console.log('Registration data:', formData);
-
+            
             setRegistrationSuccess(true);
-
+            
             // Navigate to login after success
             setTimeout(() => {
                 navigate('/auth/login', {
@@ -188,7 +190,7 @@ const Register: React.FC = () => {
                     }
                 });
             }, 3000);
-
+            
         } catch (error) {
             console.error('Registration error:', error);
             setErrors({ ...errors, acceptTerms: 'Registration failed. Please try again.' });
@@ -251,16 +253,14 @@ const Register: React.FC = () => {
                 {/* Main floating card */}
                 <Card className="relative w-full bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
                     {/* Left side */}
-                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-200 via-orange-500 to-orange-400 p-8">
+                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-300 via-orange-600 to-orange-500 p-8">
                         <div className="w-full max-w-sm mx-auto text-center text-white space-y-6">
-                            <div className="flex items-center justify-center">
-                                <div className="w-40 h-40 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-4 flex items-center justify-center">
-                                    <img
-                                        src={uiuLogo}
-                                        alt="UIU Logo"
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
+                            <div className="w-40 h-40 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto border border-white/30 p-4">
+                                <img
+                                    src={uiuLogo}
+                                    alt="UIU Logo"
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
                             <div className="space-y-4 text-center">
                                 <h2 className="text-3xl font-bold text-center">Welcome to UIU Healthcare</h2>
@@ -302,7 +302,7 @@ const Register: React.FC = () => {
                             <form onSubmit={handleSubmit} className="space-y-4">
 
                                 {/* Personal Information */}
-                                <div className="space-y-5" style={{ marginTop: 20 }}>
+                                <div className="space-y-5" style={{ marginTop: 20, }}>
                                     <h3 className="text-sm font-medium text-gray-800 flex items-center">
                                         <User className="h-4 w-4 mr-2 text-orange-600" />
                                         Personal Information
@@ -316,7 +316,7 @@ const Register: React.FC = () => {
                                         <Input
                                             id="name"
                                             type="text"
-                                            placeholder="Enter your full name"
+                                            placeholder="  Enter your full name"
                                             value={formData.name}
                                             onChange={(e) => handleInputChange('name', e.target.value)}
                                             className={errors.name ? 'border-red-500 pl-4' : 'pl-4'}
@@ -337,7 +337,7 @@ const Register: React.FC = () => {
                                             <Input
                                                 id="uiuId"
                                                 type="text"
-                                                placeholder="Enter your UIU ID"
+                                                placeholder="  Enter your UIU ID (e.g., 01112345)"
                                                 value={formData.uiuId}
                                                 onChange={(e) => handleInputChange('uiuId', e.target.value)}
                                                 className={`${errors.uiuId ? 'border-red-500' : ''} ${uiuIdAvailability === 'available' ? 'border-green-500' : ''
@@ -380,7 +380,7 @@ const Register: React.FC = () => {
                                         <Input
                                             id="email"
                                             type="email"
-                                            placeholder="Enter your UIU email"
+                                            placeholder="  Enter your UIU email (e.g., yourname@student.uiu.ac.bd)"
                                             value={formData.email}
                                             onChange={(e) => handleInputChange('email', e.target.value)}
                                             className={errors.email ? 'border-red-500 pl-4' : 'pl-4'}
@@ -408,7 +408,7 @@ const Register: React.FC = () => {
                                         <Input
                                             id="phone"
                                             type="tel"
-                                            placeholder="+880-1xxxxxxxxx"
+                                            placeholder="  +880-1xxxxxxxxx"
                                             value={formData.phone}
                                             onChange={(e) => handleInputChange('phone', e.target.value)}
                                             className={errors.phone ? 'border-red-500 pl-4' : 'pl-4'}
@@ -435,7 +435,7 @@ const Register: React.FC = () => {
                                             <Input
                                                 id="password"
                                                 type={showPassword ? 'text' : 'password'}
-                                                placeholder="Create a strong password"
+                                                placeholder="  Create a strong password"
                                                 value={formData.password}
                                                 onChange={(e) => handleInputChange('password', e.target.value)}
                                                 className={errors.password ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
@@ -474,7 +474,7 @@ const Register: React.FC = () => {
                                             <Input
                                                 id="confirmPassword"
                                                 type={showConfirmPassword ? 'text' : 'password'}
-                                                placeholder="Confirm your password"
+                                                placeholder="  Confirm your password"
                                                 value={formData.confirmPassword}
                                                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                                                 className={errors.confirmPassword ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
@@ -526,9 +526,8 @@ const Register: React.FC = () => {
                                 {/* Submit Button */}
                                 <Button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0 mt-2"
+                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0 mt-2"
                                     disabled={isLoading}
-                                    style={{ marginTop: 10 }}
                                 >
                                     {isLoading ? (
                                         <>
@@ -542,7 +541,7 @@ const Register: React.FC = () => {
                             </form>
 
                             {/* Login Link */}
-                            <div className="text-center pt-4 border-t border-gray-200" style={{ marginBottom: 10 }}>
+                            <div className="text-center pt-4 border-t border-gray-200">
                                 <p className="text-sm text-gray-600">
                                     Already have an account?{' '}
                                     <Link
@@ -558,7 +557,7 @@ const Register: React.FC = () => {
                 </Card>
 
                 {/* Footer - Outside floating card */}
-                <p className="text-center text-xs text-gray-500 mt-6" style={{ marginTop: 25 }}>
+                <p className="text-center text-xs text-gray-500 mt-6"style={{ marginTop: 25 }}>
                     © 2025 United International University. All rights reserved.
                 </p>
             </div>
