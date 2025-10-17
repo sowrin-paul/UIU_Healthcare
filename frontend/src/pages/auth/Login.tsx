@@ -64,7 +64,7 @@ const Login: React.FC = () => {
     // Handle input changes
     const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        
+
         // Clear error when user starts typing
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -93,20 +93,19 @@ const Login: React.FC = () => {
     // Form submission handler
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!validateForm()) {
             return;
         }
 
         setIsLoading(true);
         setLoginAttempts(prev => prev + 1);
-        
+
         try {
-            // Simulate API call - replace with actual login API
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
+            await new Promise(resolve => setTimeout(resolve, 1500)); // needed to replace
+
             console.log('Login data:', formData);
-            
+
             // Mock successful login
             const mockUser = {
                 id: '1',
@@ -115,13 +114,13 @@ const Login: React.FC = () => {
                 role: formData.uiuId === 'admin' ? 'admin' : 'student'
             };
 
-            // Store user in localStorage (replace with proper auth implementation)
+            // Store user in localStorage
             localStorage.setItem('user', JSON.stringify(mockUser));
             localStorage.setItem('isAuthenticated', 'true');
-            
+
             // Navigate to dashboard
             navigate(from, { replace: true });
-            
+
         } catch (error) {
             console.error('Login error:', error);
             setErrors({ general: 'Login failed. Please check your credentials and try again.' });
@@ -131,25 +130,27 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 p-6">
+        <div className="min-h-screen flex items-center justify-center p-6">
             {/* Floating Login Card */}
             <div className="relative w-full max-w-4xl mx-auto">
                 {/* Background blur effects for floating appearance */}
-                <div className="absolute -inset-6 bg-gradient-to-r from-orange-400 to-orange-500 rounded-3xl opacity-20 blur-xl animate-pulse"></div>
-                <div className="absolute -inset-3 bg-gradient-to-r from-orange-300 to-orange-400 rounded-2xl opacity-30 blur-lg"></div>
+                {/* <div className="absolute -inset-6 bg-gradient-to-r from-orange-400 to-orange-500 rounded-3xl opacity-20 blur-xl animate-pulse"></div> */}
+                <div className="absolute -inset-3 bg-gradient-to-r from-orange-200 to-orange-300 rounded-2xl opacity-30 blur-lg"></div>
 
                 {/* Main floating card */}
                 {/* Floating Login Card */}
                 <Card className="relative w-full max-w-6xl mx-auto bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 h-[600px] max-h-[90vh]">
-                    {/* Left side - UIU Branding */}
-                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-300 via-orange-600 to-orange-500 p-8">
+                    {/* Left side */}
+                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-200 via-orange-500 to-orange-400 p-8">
                         <div className="w-full max-w-sm mx-auto text-center text-white space-y-6">
-                            <div className="w-40 h-40 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto border border-white/30 p-4">
-                                <img
-                                    src={uiuLogo}
-                                    alt="UIU Logo"
-                                    className="w-full h-full object-contain"
-                                />
+                            <div className="flex items-center justify-center">
+                                <div className="w-40 h-40 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-4 flex items-center justify-center">
+                                    <img
+                                        src={uiuLogo}
+                                        alt="UIU Logo"
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
                             </div>
                             <div className="space-y-4 text-center">
                                 <h2 className="text-3xl font-bold text-center">UIU Healthcare Portal</h2>
@@ -158,17 +159,19 @@ const Login: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Right side - Login Form */}
-                    <div className="flex flex-col">
-                        {/* Mobile Brand Header - Only visible on mobile */}
+                    {/* Right side */}
+                    <div className="flex flex-col justify-center items-center max-w-svw m-8">
+                        {/* Mobile Brand Header */}
                         <div className="lg:hidden text-center space-y-4 pt-8 pb-4 px-8 bg-gradient-to-br from-orange-500 to-orange-600">
                             <div className="flex justify-center">
-                                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30 p-2">
-                                    <img
-                                        src={uiuLogo}
-                                        alt="UIU Logo"
-                                        className="w-full h-full object-contain"
-                                    />
+                                <div className="flex items-center justify-center">
+                                    <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-3 flex items-center justify-center mx-auto">
+                                        <img
+                                            src={uiuLogo}
+                                            alt="UIU Logo"
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-2 text-center">
@@ -177,19 +180,25 @@ const Login: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Desktop Header - Only visible on desktop */}
-                        <div className="hidden lg:block text-center pt-8 pb-4 px-8">
+                        {/* Desktop Header */}
+                        {/* <div className="hidden lg:block text-center pt-8 pb-4 px-8">
                             <div className="space-y-2">
                                 <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
                                 <p className="text-gray-600">Sign in to your UIU Healthcare account</p>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Form Content */}
-                        <CardContent className="px-8 pb-8 space-y-6 flex-1 flex flex-col justify-center">
+                        <CardContent className="flex flex-col justify-center px-12 py-10 space-y-6">
+                            <div className="hidden lg:block text-center pt-8 pb-4 px-8" style={{ marginBottom: 35 }}>
+                                <div className="space-y-2">
+                                    <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+                                    <p className="text-gray-600">Sign in to your UIU Healthcare account</p>
+                                </div>
+                            </div>
                             {/* Success Message */}
                             {messageFromState && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start space-x-2">
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start space-x-2 mx-2">
                                     <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                                     <p className="text-sm text-green-700">{messageFromState}</p>
                                 </div>
@@ -197,7 +206,7 @@ const Login: React.FC = () => {
 
                             {/* Form Error */}
                             {errors.general && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-2 mx-2">
                                     <div className="flex-1">
                                         <p className="text-sm text-red-700">{errors.general}</p>
                                         {loginAttempts >= 3 && (
@@ -209,7 +218,7 @@ const Login: React.FC = () => {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6 mx-2">
                                 {/* Login Credentials Section */}
                                 <div className="space-y-4">
                                     <h3 className="text-sm font-medium text-gray-800 flex items-center">
@@ -225,7 +234,7 @@ const Login: React.FC = () => {
                                         <Input
                                             id="uiuId"
                                             type="text"
-                                            placeholder="  Enter your UIU ID (e.g., 01112345)"
+                                            placeholder="  Enter your UIU ID"
                                             value={formData.uiuId}
                                             onChange={(e) => handleInputChange('uiuId', e.target.value)}
                                             className={errors.uiuId ? 'border-red-500 pl-4' : 'pl-4'}
@@ -312,7 +321,7 @@ const Login: React.FC = () => {
                             </form>
 
                             {/* Register Link */}
-                            <div className="text-center pt-4 border-t border-gray-200">
+                            <div className="text-center pt-4 border-t border-gray-200 mx-2">
                                 <p className="text-sm text-gray-600">
                                     Don't have an account?{' '}
                                     <Link
@@ -325,7 +334,7 @@ const Login: React.FC = () => {
                             </div>
 
                             {/* Demo Credentials */}
-                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-4 space-y-3">
+                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-6 space-y-3 mx-2">
                                 <div className="flex items-center space-x-2">
                                     <CheckCircle2 className="h-4 w-4 text-orange-600" />
                                     <h3 className="text-sm font-medium text-orange-800">Demo Credentials</h3>
@@ -370,7 +379,7 @@ const Login: React.FC = () => {
                 </Card>
 
                 {/* Footer - Outside floating card */}
-                <p className="text-center text-xs text-gray-500 mt-6">
+                <p className="text-center text-xs text-gray-500 mt-6"  style={{ marginTop: 35 }}>
                     © 2025 United International University. All rights reserved.
                 </p>
             </div>

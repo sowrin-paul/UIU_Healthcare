@@ -14,7 +14,7 @@ import {
     Activity
 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/utils.ts';
 
 interface SidebarItem {
     id: string;
