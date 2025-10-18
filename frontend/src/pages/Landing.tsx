@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from '../components/ui/ImageWithFallback';
 import LandingNavbar from '../components/common/LandingNavbar';
 import LandingFooter from '../components/common/LandingFooter';
