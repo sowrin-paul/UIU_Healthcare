@@ -7,11 +7,11 @@ const ForgotPassword: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FDF7F2] to-white p-4">
       <div className="w-full max-w-md space-y-6">
-        
+
         {/* Header */}
         <div className="text-center space-y-2">
-          <Link 
-            to="/auth/login" 
+          <Link
+            to="/auth/login"
             className="inline-flex items-center text-[#4B4B4B] hover:text-[#F68B1F] mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />

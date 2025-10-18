@@ -18,7 +18,7 @@ import { InlineLoader } from '../../components/common/Loader';
 const EmailVerification: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'failed' | 'expired'>('pending');
@@ -39,16 +39,16 @@ const EmailVerification: React.FC = () => {
         try {
             setIsLoading(true);
             setError(null);
-            
+
             // Mock verify email function - simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             // Mock validation: token should be at least 10 characters for success
             const isValidToken = verificationToken.length >= 10;
-            
+
             if (isValidToken) {
                 setVerificationStatus('success');
-                
+
                 // Redirect to login after successful verification
                 setTimeout(() => {
                     navigate('/auth/login', {
@@ -87,10 +87,10 @@ const EmailVerification: React.FC = () => {
         try {
             setResendLoading(true);
             setError(null);
-            
+
             // Mock resend verification email - simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             // Basic email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (emailRegex.test(emailForResend)) {
@@ -157,7 +157,7 @@ const EmailVerification: React.FC = () => {
                                 The verification link is invalid or has expired. Please request a new verification email.
                             </p>
                         </div>
-                        
+
                         <div className="space-y-3">
                             <div className="text-left">
                                 <label htmlFor="email" className="text-sm font-medium text-[#1A1A1A]">
@@ -172,7 +172,7 @@ const EmailVerification: React.FC = () => {
                                     className="mt-1"
                                 />
                             </div>
-                            
+
                             <Button
                                 onClick={handleResendVerification}
                                 disabled={resendLoading}
@@ -191,7 +191,7 @@ const EmailVerification: React.FC = () => {
                                 )}
                             </Button>
                         </div>
-                        
+
                         <div className="pt-4 border-t border-[#E5E5E5]">
                             <Link
                                 to="/auth/login"
@@ -210,7 +210,7 @@ const EmailVerification: React.FC = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FDF7F2] to-white p-4">
             <div className="w-full max-w-lg space-y-6">
-                
+
                 {/* Header */}
                 <div className="text-center space-y-2">
                     <Link
@@ -237,7 +237,7 @@ const EmailVerification: React.FC = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        
+
                         {/* Processing verification */}
                         {token && isLoading && (
                             <div className="text-center py-4">
@@ -260,7 +260,7 @@ const EmailVerification: React.FC = () => {
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                     <h3 className="font-medium text-blue-800 mb-2">Check Your Email</h3>
                                     <p className="text-sm text-blue-700 mb-3">
-                                        We sent a verification link to your UIU email address. 
+                                        We sent a verification link to your UIU email address.
                                         Click the link in the email to verify your account.
                                     </p>
                                     <ul className="text-sm text-blue-600 list-disc list-inside space-y-1">
@@ -269,7 +269,7 @@ const EmailVerification: React.FC = () => {
                                         <li>Each link can only be used once</li>
                                     </ul>
                                 </div>
-                                
+
                                 <div className="space-y-3">
                                     <p className="text-sm text-[#4B4B4B]">
                                         Didn't receive the email? Enter your email to resend:
@@ -307,7 +307,7 @@ const EmailVerification: React.FC = () => {
                         <div className="bg-[#FDF7F2] border border-[#F68B1F]/20 rounded-lg p-3">
                             <p className="text-xs font-medium text-[#F68B1F] mb-1">Need Help?</p>
                             <p className="text-xs text-[#4B4B4B]">
-                                If you continue to have problems, contact UIU Healthcare support or 
+                                If you continue to have problems, contact UIU Healthcare support or
                                 visit the campus health center.
                             </p>
                         </div>

@@ -5,6 +5,7 @@ import { Eye, EyeOff, User, Shield, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Card, CardContent } from '../../components/ui/card';
+
 import uiuLogo from '../../assets/logo/uiu_logo.png';
 
 interface LoginFormData {
@@ -16,11 +17,10 @@ interface LoginFormData {
 interface LoginErrors {
     uiuId?: string;
     password?: string;
-    rememberMe?: string;
     general?: string;
 }
 
-const Login: React.FC = () => {
+export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -71,25 +71,6 @@ const Login: React.FC = () => {
         }
     };
 
-    // Handle demo credentials
-    const fillDemoCredentials = (role: 'admin' | 'student' | 'doctor') => {
-        const demoCredentials = {
-            admin: { uiuId: 'admin', password: 'admin123' },
-            student: { uiuId: '01112345', password: 'student123' },
-            doctor: { uiuId: 'DOC-001', password: 'doctor123' },
-        };
-
-        const credentials = demoCredentials[role];
-        setFormData(prev => ({
-            ...prev,
-            uiuId: credentials.uiuId,
-            password: credentials.password,
-        }));
-
-        // Clear any existing errors
-        setErrors({});
-    };
-
     // Form submission handler
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -130,256 +111,197 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-            {/* Floating Login Card */}
-            <div className="relative w-full max-w-4xl mx-auto">
-                {/* Background blur effects for floating appearance */}
-                {/* <div className="absolute -inset-6 bg-gradient-to-r from-orange-400 to-orange-500 rounded-3xl opacity-20 blur-xl animate-pulse"></div> */}
+        <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+            <div className="relative w-full max-w-5xl mx-auto">
                 <div className="absolute -inset-3 bg-gradient-to-r from-orange-200 to-orange-300 rounded-2xl opacity-30 blur-lg"></div>
 
-                {/* Main floating card */}
-                {/* Floating Login Card */}
-                <Card className="relative w-full max-w-6xl mx-auto bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 h-[600px] max-h-[90vh]">
-                    {/* Left side */}
-                    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-200 via-orange-500 to-orange-400 p-8">
-                        <div className="w-full max-w-sm mx-auto text-center text-white space-y-6">
-                            <div className="flex items-center justify-center">
-                                <div className="w-40 h-40 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-4 flex items-center justify-center">
-                                    <img
-                                        src={uiuLogo}
-                                        alt="UIU Logo"
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-4 text-center">
-                                <h2 className="text-3xl font-bold text-center">UIU Healthcare Portal</h2>
-                                <p className="text-white/90 text-lg text-center leading-relaxed break-words">Access your medical records and healthcare services</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right side */}
-                    <div className="flex flex-col justify-center items-center max-w-svw m-8">
-                        {/* Mobile Brand Header */}
-                        <div className="lg:hidden text-center space-y-4 pt-8 pb-4 px-8 bg-gradient-to-br from-orange-500 to-orange-600">
-                            <div className="flex justify-center">
+                <Card className="relative w-full bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
+                        {/* Left side - Desktop only */}
+                        <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-orange-200 via-orange-500 to-orange-400 p-12">
+                            <div className="w-full max-w-sm mx-auto text-center text-white space-y-6">
                                 <div className="flex items-center justify-center">
-                                    <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-3 flex items-center justify-center mx-auto">
-                                        <img
-                                            src={uiuLogo}
-                                            alt="UIU Logo"
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="space-y-2 text-center">
-                                <h1 className="text-2xl font-bold text-white text-center">UIU Healthcare</h1>
-                                <p className="text-white/90 text-center">Sign in to your portal</p>
-                            </div>
-                        </div>
-
-                        {/* Desktop Header */}
-                        {/* <div className="hidden lg:block text-center pt-8 pb-4 px-8">
-                            <div className="space-y-2">
-                                <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-                                <p className="text-gray-600">Sign in to your UIU Healthcare account</p>
-                            </div>
-                        </div> */}
-
-                        {/* Form Content */}
-                        <CardContent className="flex flex-col justify-center px-12 py-10 space-y-6">
-                            <div className="hidden lg:block text-center pt-8 pb-4 px-8" style={{ marginBottom: 35 }}>
-                                <div className="space-y-2">
-                                    <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-                                    <p className="text-gray-600">Sign in to your UIU Healthcare account</p>
-                                </div>
-                            </div>
-                            {/* Success Message */}
-                            {messageFromState && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start space-x-2 mx-2">
-                                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                    <p className="text-sm text-green-700">{messageFromState}</p>
-                                </div>
-                            )}
-
-                            {/* Form Error */}
-                            {errors.general && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-2 mx-2">
-                                    <div className="flex-1">
-                                        <p className="text-sm text-red-700">{errors.general}</p>
-                                        {loginAttempts >= 3 && (
-                                            <p className="text-xs text-red-600 mt-1">
-                                                Too many failed attempts. Please check your credentials or contact support.
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="space-y-6 mx-2">
-                                {/* Login Credentials Section */}
-                                <div className="space-y-4">
-                                    <h3 className="text-sm font-medium text-gray-800 flex items-center">
-                                        <User className="h-4 w-4 mr-2 text-orange-600" />
-                                        Login Credentials
-                                    </h3>
-
-                                    {/* UIU ID Field */}
-                                    <div className="space-y-2">
-                                        <label htmlFor="uiuId" className="text-sm font-medium text-gray-800">
-                                            UIU ID *
-                                        </label>
-                                        <Input
-                                            id="uiuId"
-                                            type="text"
-                                            placeholder="  Enter your UIU ID"
-                                            value={formData.uiuId}
-                                            onChange={(e) => handleInputChange('uiuId', e.target.value)}
-                                            className={errors.uiuId ? 'border-red-500 pl-4' : 'pl-4'}
-                                        />
-                                        <div className="h-5">
-                                            {errors.uiuId && (
-                                                <p className="text-sm text-red-600">{errors.uiuId}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Password Field */}
-                                    <div className="space-y-2">
-                                        <label htmlFor="password" className="text-sm font-medium text-gray-800 flex items-center">
-                                            <Shield className="h-4 w-4 mr-1 text-orange-600" />
-                                            Password *
-                                        </label>
-                                        <div className="relative">
-                                            <Input
-                                                id="password"
-                                                type={showPassword ? 'text' : 'password'}
-                                                placeholder="  Enter your password"
-                                                value={formData.password}
-                                                onChange={(e) => handleInputChange('password', e.target.value)}
-                                                className={errors.password ? 'border-red-500 pr-10 pl-4' : 'pr-10 pl-4'}
+                                    <div className="w-50 h-50 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-4 flex items-center justify-center">
+                                        <div className="w-full h-full rounded-xl flex items-center justify-center">
+                                            <img
+                                                src={uiuLogo}
+                                                alt="UIU Logo"
+                                                className="w-full h-full object-contain"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-orange-600 transition-colors"
-                                            >
-                                                {showPassword ? (
-                                                    <EyeOff className="h-4 w-4" />
-                                                ) : (
-                                                    <Eye className="h-4 w-4" />
-                                                )}
-                                            </button>
-                                        </div>
-                                        <div className="h-5">
-                                            {errors.password && (
-                                                <p className="text-sm text-red-600">{errors.password}</p>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Remember Me & Forgot Password */}
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            id="rememberMe"
-                                            type="checkbox"
-                                            checked={formData.rememberMe}
-                                            onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
-                                            className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="rememberMe" className="text-sm text-gray-600">
-                                            Remember me
-                                        </label>
-                                    </div>
-                                    <Link
-                                        to="/auth/forgot-password"
-                                        className="text-sm text-orange-600 hover:text-orange-700 hover:underline transition-colors"
-                                    >
-                                        Forgot password?
-                                    </Link>
-                                </div>
-
-                                {/* Submit Button */}
-                                <Button
-                                    type="submit"
-                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Signing in...
-                                        </>
-                                    ) : (
-                                        'Sign In'
-                                    )}
-                                </Button>
-                            </form>
-
-                            {/* Register Link */}
-                            <div className="text-center pt-4 border-t border-gray-200 mx-2">
-                                <p className="text-sm text-gray-600">
-                                    Don't have an account?{' '}
-                                    <Link
-                                        to="/auth/register"
-                                        className="text-orange-600 hover:text-orange-700 font-medium hover:underline transition-colors"
-                                    >
-                                        Register here
-                                    </Link>
-                                </p>
-                            </div>
-
-                            {/* Demo Credentials */}
-                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-6 space-y-3 mx-2">
-                                <div className="flex items-center space-x-2">
-                                    <CheckCircle2 className="h-4 w-4 text-orange-600" />
-                                    <h3 className="text-sm font-medium text-orange-800">Demo Credentials</h3>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex flex-wrap gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => fillDemoCredentials('admin')}
-                                            className="text-xs border-orange-200 text-orange-700 hover:bg-orange-50"
-                                        >
-                                            Admin Demo
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => fillDemoCredentials('student')}
-                                            className="text-xs border-orange-200 text-orange-700 hover:bg-orange-50"
-                                        >
-                                            Student Demo
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => fillDemoCredentials('doctor')}
-                                            className="text-xs border-orange-200 text-orange-700 hover:bg-orange-50"
-                                        >
-                                            Doctor Demo
-                                        </Button>
-                                    </div>
-                                    <p className="text-xs text-orange-700">
-                                        Click any button above to fill demo credentials for testing.
+                                <div className="space-y-4">
+                                    <h2 className="text-3xl">UIU Healthcare Portal</h2>
+                                    <p className="text-white/90 text-lg leading-relaxed">
+                                        Access your medical records and healthcare services
                                     </p>
                                 </div>
                             </div>
-                        </CardContent>
+                        </div>
+
+                        {/* Right side - Form */}
+                        <div className="flex flex-col">
+                            {/* Mobile Brand Header */}
+                            <div className="lg:hidden bg-gradient-to-br from-orange-500 to-orange-600 text-center py-8 px-6">
+                                <div className="flex justify-center mb-4">
+                                    <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/30 p-3 flex items-center justify-center">
+                                        <div className="w-full h-full bg-white rounded-lg flex items-center justify-center">
+                                            <span className="text-orange-500 text-xs">UIU</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 className="text-2xl text-white mb-2">UIU Healthcare</h1>
+                                <p className="text-white/90">Sign in to your portal</p>
+                            </div>
+
+                            {/* Form Content */}
+                            <CardContent className="flex flex-col justify-center px-6 md:px-12 py-10 flex-1">
+                                {/* Desktop Header */}
+                                <div className="hidden lg:block text-center mb-8">
+                                    <h1 className="text-2xl text-gray-900 mb-2">Welcome Back</h1>
+                                    <p className="text-gray-600">Sign in to your UIU Healthcare account</p>
+                                </div>
+
+                                {/* Success Message */}
+                                {messageFromState && (
+                                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start space-x-2 mb-6">
+                                        <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                        <p className="text-sm text-green-700">{messageFromState}</p>
+                                    </div>
+                                )}
+
+                                {/* Form Error */}
+                                {errors.general && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-2 mb-6">
+                                        <div className="flex-1">
+                                            <p className="text-sm text-red-700">{errors.general}</p>
+                                            {loginAttempts >= 3 && (
+                                                <p className="text-xs text-red-600 mt-1">
+                                                    Too many failed attempts. Please check your credentials or contact support.
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    {/* Login Credentials Section */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm text-gray-800 flex items-center">
+                                            <User className="h-4 w-4 mr-2 text-orange-600" />
+                                            Login Credentials
+                                        </h3>
+
+                                        {/* UIU ID Field */}
+                                        <div className="space-y-1.5">
+                                            <label htmlFor="uiuId" className="text-sm text-gray-800">
+                                                UIU ID <span className="text-red-600">*</span>
+                                            </label>
+                                            <Input
+                                                id="uiuId"
+                                                type="text"
+                                                placeholder="Enter your UIU ID"
+                                                value={formData.uiuId}
+                                                onChange={(e) => handleInputChange('uiuId', e.target.value)}
+                                                className={errors.uiuId ? 'border-red-500' : ''}
+                                            />
+                                            {errors.uiuId && (
+                                                <p className="text-xs text-red-600">{errors.uiuId}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Password Field */}
+                                        <div className="space-y-1.5">
+                                            <label htmlFor="password" className="text-sm text-gray-800 flex items-center">
+                                                <Shield className="h-4 w-4 mr-1 text-orange-600" />
+                                                Password <span className="text-red-600">*</span>
+                                            </label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password"
+                                                    type={showPassword ? 'text' : 'password'}
+                                                    placeholder="Enter your password"
+                                                    value={formData.password}
+                                                    onChange={(e) => handleInputChange('password', e.target.value)}
+                                                    className={`${errors.password ? 'border-red-500' : ''} pr-10`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-orange-600 transition-colors"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                            {errors.password && (
+                                                <p className="text-xs text-red-600">{errors.password}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Remember Me & Forgot Password */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                id="rememberMe"
+                                                type="checkbox"
+                                                checked={formData.rememberMe}
+                                                onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
+                                                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                            />
+                                            <label htmlFor="rememberMe" className="text-sm text-gray-600">
+                                                Remember me
+                                            </label>
+                                        </div>
+                                        <Link
+                                            to="/forgot-password"
+                                            className="text-sm text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                        >
+                                            Forgot password?
+                                        </Link>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <Button
+                                        type="submit"
+                                        className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Signing in...
+                                            </>
+                                        ) : (
+                                            'Sign In'
+                                        )}
+                                    </Button>
+
+                                    {/* Register Link */}
+                                    <div className="text-center pt-4 border-t border-gray-200">
+                                        <p className="text-sm text-gray-600">
+                                            Don't have an account?{' '}
+                                            <Link
+                                                to="/register"
+                                                className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                            >
+                                                Register here
+                                            </Link>
+                                        </p>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </div>
                     </div>
                 </Card>
 
-                {/* Footer - Outside floating card */}
-                <p className="text-center text-xs text-gray-500 mt-6"  style={{ marginTop: 35 }}>
+                {/* Footer */}
+                <p className="text-center text-xs text-gray-500 mt-6">
                     © 2025 United International University. All rights reserved.
                 </p>
             </div>
@@ -387,4 +309,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default LoginPage;

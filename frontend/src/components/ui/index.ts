@@ -1,5 +1,7 @@
 // UI Components - UIU Healthcare Theme
 export { Button, buttonVariants } from "./button"
+export { Badge } from "./badge"
+export { badgeVariants } from "./badge.variants"
 export {
     Card,
     CardHeader,

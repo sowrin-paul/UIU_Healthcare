@@ -1,35 +1,34 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-// Import pages
 import Register from "./pages/auth/Register";
 import EmailVerification from "./pages/auth/EmailVerification";
 import Login from "./pages/auth/Login";
-import Landing from "./pages/Landing"; // 👈 new landing page
-
-// Import UI components
+import HomePage from "./pages/Landing";
 import { Toaster } from "./components/ui/toaster";
+
+// Import Auth Context
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Landing Page */}
-          <Route path="/" element={<Landing />} /> {/* 👈 added */}
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Landing Page */}
+            <Route path="/" element={<HomePage />} />
 
-          {/* Auth Routes */}
-          <Route path="/auth/register" element={<Register />} />
-          <Route path="/auth/verify-email" element={<EmailVerification />} />
-          <Route path="/auth/login" element={<Login />} />
+            {/* Auth Routes */}
+            <Route path="/register" element={<Register />} />
+            <Route path="/auth/verify-email" element={<EmailVerification />} />
+            <Route path="/login" element={<Login />} />
 
-          {/* Optional: alias paths */}
-          <Route path="/login" element={<Login />} />
-        </Routes>
+          </Routes>
 
-        {/* Global Toaster */}
-        <Toaster />
-      </div>
-    </Router>
+          {/* Global Toaster */}
+          <Toaster />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

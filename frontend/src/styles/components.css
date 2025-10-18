@@ -1,4 +1,4 @@
-/* Loading Animation */
+Loading Animation
 .loading-spinner {
   animation: spin 1s linear infinite;
 }
