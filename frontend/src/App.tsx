@@ -4,6 +4,9 @@ import EmailVerification from "./pages/auth/EmailVerification";
 import Login from "./pages/auth/Login";
 import HomePage from "./pages/Landing";
 import { Toaster } from "./components/ui/toaster";
+import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import StaffDashboard from "./pages/dashboard/StaffDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 
 // Import Auth Context
 import { AuthProvider } from "./context/AuthContext";
@@ -21,6 +24,10 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/auth/verify-email" element={<EmailVerification />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/dashboard/student" element={<StudentDashboard />} />
+            <Route path="/dashboard/staff" element={<StaffDashboard />} />
+            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+
 
           </Routes>
 

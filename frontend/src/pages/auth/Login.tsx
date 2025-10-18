@@ -83,24 +83,42 @@ export const LoginPage: React.FC = () => {
         setLoginAttempts(prev => prev + 1);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500)); // needed to replace
+            // Mock API call delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             console.log('Login data:', formData);
 
-            // Mock successful login
+            // MOCK ROLE LOGIC
+            let role = '';
+            if (/^011/.test(formData.uiuId)) {
+                role = 'student';
+            } else if (/^STAFF/.test(formData.uiuId) || /^DOC/.test(formData.uiuId)) {
+                role = 'staff';
+            } else if (/^ADMIN/.test(formData.uiuId) || formData.uiuId === 'admin') {
+                role = 'admin';
+            } else {
+                throw new Error('Invalid credentials');
+            }
+
             const mockUser = {
                 id: '1',
                 uiuId: formData.uiuId,
-                name: formData.uiuId === 'admin' ? 'System Administrator' : 'Student Name',
-                role: formData.uiuId === 'admin' ? 'admin' : 'student'
+                name: role === 'admin' ? 'System Administrator' : 'User Name',
+                role: role
             };
 
             // Store user in localStorage
             localStorage.setItem('user', JSON.stringify(mockUser));
             localStorage.setItem('isAuthenticated', 'true');
 
-            // Navigate to dashboard
-            navigate(from, { replace: true });
+            // Role-based navigation
+            if (role === 'student') {
+                navigate('/dashboard/student', { replace: false });
+            } else if (role === 'staff') {
+                navigate('/dashboard/staff', { replace: false });
+            } else if (role === 'admin') {
+                navigate('/dashboard/admin', { replace: true });
+            }
 
         } catch (error) {
             console.error('Login error:', error);

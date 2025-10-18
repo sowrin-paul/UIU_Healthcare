@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import Bannerimg from '../assets/logo/uiu_banner.jpg';
 
 export const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white">
@@ -192,6 +194,12 @@ export const HomePage: React.FC = () => {
               iconColor="bg-[#F68B1F]"
             />
           </div>
+          <div className="mt-8 flex justify-center gap-4">
+            <Button onClick={() => navigate("/dashboard/student")}>Student</Button>
+            <Button onClick={() => navigate("/dashboard/staff")}>Healthcare Staff</Button>
+            <Button onClick={() => navigate("/dashboard/admin")}>Administrator</Button>
+          </div>
+
         </div>
       </section>
 
