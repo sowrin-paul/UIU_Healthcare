@@ -4,8 +4,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .serializers import RegisterSerializer, UserSerializer
-from .models import User
+from django_filters.rest_framework import DjangoFilterBackend
+from .serializers import RegisterSerializer, UserSerializer, AppointmentSerializer, BookAppointmentSerializer, UpdateAppointmentStatusSerializer
+from .models import User, Appointment
 
 
 class RegisterView(generics.CreateAPIView):
@@ -81,7 +82,7 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = (AllowAny,)  # Allow logout even if token is invalid
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         try:
@@ -93,13 +94,10 @@ class LogoutView(APIView):
                     'message': 'Logout successful'
                 }, status=status.HTTP_200_OK)
             else:
-                # No token provided, but still return success
                 return Response({
                     'message': 'Logout successful'
                 }, status=status.HTTP_200_OK)
         except Exception as e:
-            # Even if blacklisting fails, return success
-            # The frontend will clear local storage anyway
             return Response({
                 'message': 'Logout successful'
             }, status=status.HTTP_200_OK)
@@ -111,3 +109,121 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class DoctorListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(role='STAFF')
+
+
+class AppointmentListView(generics.ListAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status', 'date', 'emergency']
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'STUDENT':
+            return Appointment.objects.filter(patient=user)
+        elif user.role == 'STAFF':
+            return Appointment.objects.filter(doctor=user)
+        else:  # admin
+            return Appointment.objects.all()
+
+
+class BookAppointmentView(generics.CreateAPIView):
+    serializer_class = BookAppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        appointment = serializer.save()
+
+        return Response(
+            AppointmentSerializer(appointment).data,
+            status=status.HTTP_201_CREATED
+        )
+
+
+class AppointmentDetailView(generics.RetrieveAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'STUDENT':
+            return Appointment.objects.filter(patient=user)
+        elif user.role == 'STAFF':
+            return Appointment.objects.filter(doctor=user)
+        else:
+            return Appointment.objects.all()
+
+
+class UpdateAppointmentStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk)
+
+            # Check permissions
+            user = request.user
+            if user.role == 'STUDENT' and appointment.patient != user:
+                return Response(
+                    {'error': 'You do not have permission to update this appointment'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            elif user.role == 'STAFF' and appointment.doctor != user:
+                return Response(
+                    {'error': 'You do not have permission to update this appointment'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            serializer = UpdateAppointmentStatusSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            appointment.status = serializer.validated_data['status']
+            appointment.save()
+
+            return Response(
+                AppointmentSerializer(appointment).data,
+                status=status.HTTP_200_OK
+            )
+        except Appointment.DoesNotExist:
+            return Response(
+                {'error': 'Appointment not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class CancelAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk)
+
+            # Only patient can cancel
+            if request.user != appointment.patient:
+                return Response(
+                    {'error': 'Only the patient can cancel this appointment'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            appointment.status = 'cancelled'
+            appointment.save()
+
+            return Response(
+                AppointmentSerializer(appointment).data,
+                status=status.HTTP_200_OK
+            )
+        except Appointment.DoesNotExist:
+            return Response(
+                {'error': 'Appointment not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )

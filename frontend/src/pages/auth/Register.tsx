@@ -74,8 +74,8 @@ export const RegisterPage: React.FC = () => {
         // UIU ID validation
         if (!formData.uiuId.trim()) {
             newErrors.uiuId = 'UIU ID is required';
-        } else if (!/^011\d{6}$/.test(formData.uiuId)) {
-            newErrors.uiuId = 'Invalid UIU ID format. Use: 011xxxxx (9 digits total)';
+        } else if (!/^(011\d{6}|DOC\d{4}|STAFF\d{3}|admin)$/.test(formData.uiuId)) {
+            newErrors.uiuId = 'Invalid ID format. Use: 011xxxxx (Student), DOCxxx (Doctor), or STAFFxxx (Staff)';
         }
 
         // Email validation

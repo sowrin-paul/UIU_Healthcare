@@ -22,7 +22,7 @@ class User(AbstractUser):
     emergency_contact = models.CharField(max_length=15, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # avatar = models.URLField(blank=True, null=True)
+    avatar = models.URLField(blank=True, null=True)
 
     groups = models.ManyToManyField(
         'auth.Group',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppointments } from '../../hooks/useAppointments';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { appointmentService } from '../../services/appointmentService';
 
 interface BookingFormData {
     doctorId: string;
@@ -46,6 +47,20 @@ export const BookAppointmentPage: React.FC = () => {
     const selectedDoctor = watch('doctorId');
     const selectedTime = watch('time');
 
+    const [doctors, setDoctors] = useState<Array<{ id: string; name: string; specialty?: string }>>([]);
+
+    useEffect(() => {
+        const fetchDoctors = async () => {
+            try {
+                const doctorsList = await appointmentService.getDoctors();
+                setDoctors(doctorsList);
+            } catch (error) {
+                toast.error('Failed to load doctors');
+            }
+        };
+        fetchDoctors();
+    }, []);
+
     const onSubmit = async (data: BookingFormData) => {
         if (!selectedDate) {
             toast.error('Please select a date');
@@ -54,21 +69,19 @@ export const BookAppointmentPage: React.FC = () => {
 
         setIsLoading(true);
         try {
-            const doctor = DOCTORS.find(d => d.id === data.doctorId);
-
             await bookAppointment({
                 doctorId: data.doctorId,
-                doctorName: doctor?.name || '',
                 date: selectedDate.toISOString().split('T')[0],
                 time: data.time,
                 reason: data.reason,
                 emergency: isEmergency,
             });
 
-            toast.success('Appointment booked successfully!');
-            navigate('/dashboard/appointments');
+            // Navigate to appointments page on success
+            navigate('/appointments');
         } catch (error) {
-            toast.error('Failed to book appointment');
+            // Error is already handled by the hook
+            console.error('Booking failed:', error);
         } finally {
             setIsLoading(false);
         }
@@ -101,8 +114,15 @@ export const BookAppointmentPage: React.FC = () => {
                                 <SelectTrigger>
                                     <SelectValue placeholder="Choose a doctor" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                {/* <SelectContent>
                                     {DOCTORS.map(doctor => (
+                                        <SelectItem key={doctor.id} value={doctor.id}>
+                                            {doctor.name} - {doctor.specialty}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent> */}
+                                <SelectContent>
+                                    {doctors.map(doctor => (
                                         <SelectItem key={doctor.id} value={doctor.id}>
                                             {doctor.name} - {doctor.specialty}
                                         </SelectItem>

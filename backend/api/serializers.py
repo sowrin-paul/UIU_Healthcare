@@ -1,12 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from .models import User
-
-
-from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
-from .models import User
-
+from .models import User, Appointment
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -76,22 +70,59 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
-    uiuId = serializers.CharField(
-        source='uiu_id', read_only=True)
+    uiuId = serializers.CharField(source='uiu_id', read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'uiuId', 'name', 'email', 'role',
-                  'phone', 'department', 'created_at', 'avatar')
-        fields = ('id', 'uiu_id', 'username', 'email', 'first_name', 'last_name',
-                  'name', 'role', 'phone', 'department', 'date_of_birth', 'blood_group',
-                  'address', 'emergency_contact', 'avatar', 'created_at')
+        fields = ('id', 'uiuId', 'name', 'email', 'role', 'phone',
+                  'department', 'created_at')
         read_only_fields = ('id', 'created_at')
 
     def get_name(self, obj):
-        return f"{obj.first_name} {obj.last_name}".strip()
+        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['role'] = instance.role.lower()  # lowercase conversion
+        data['role'] = instance.role.lower()
         return data
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    patient_id = serializers.CharField(source='patient.uiu_id', read_only=True)
+    patient_name = serializers.CharField(source='patient.name', read_only=True)
+    doctor_id = serializers.CharField(source='doctor.uiu_id', read_only=True)
+    doctor_name = serializers.CharField(source='doctor.name', read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = ('id', 'patient_id', 'patient_name', 'doctor_id', 'doctor_name',
+                  'date', 'time', 'status', 'reason', 'emergency', 'notes',
+                  'created_at', 'updated_at')
+        read_only_fields = ('id', 'patient_id', 'patient_name', 'doctor_id',
+                            'doctor_name', 'created_at', 'updated_at')
+
+
+class BookAppointmentSerializer(serializers.ModelSerializer):
+    doctor_id = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = ('doctor_id', 'date', 'time', 'reason', 'emergency')
+
+    def validate_doctor_id(self, value):
+        try:
+            doctor = User.objects.get(uiu_id=value, role='staff')
+            return doctor
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid doctor ID")
+
+    def create(self, validated_data):
+        doctor = validated_data.pop('doctor_id')
+        validated_data['doctor'] = doctor
+        validated_data['patient'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class UpdateAppointmentStatusSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=['pending', 'confirmed', 'completed', 'cancelled'])

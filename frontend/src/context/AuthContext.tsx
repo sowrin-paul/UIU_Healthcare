@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
-import { authService } from '../services/authServices';
+import { authService } from '@/services/authServices';
 
 export type UserRole = 'student' | 'staff' | 'admin';
 
@@ -20,6 +20,7 @@ interface AuthContextType {
     login: (user: User) => void;
     logout: () => Promise<void>;
     updateUser: (user: Partial<User>) => void;
+    refreshProfile: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,29 +35,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Load user from localStorage on mount
     useEffect(() => {
-        const loadUser = async () => {
+        const loadUser = () => {
             try {
                 const storedUser = localStorage.getItem('user');
                 const accessToken = localStorage.getItem('access_token');
 
+                // Only set user if we have both stored user and token
                 if (storedUser && accessToken) {
                     const parsedUser = JSON.parse(storedUser);
                     setUser(parsedUser);
-
-                    // Optionally fetch fresh user data
-                    try {
-                        const freshUser = await authService.getProfile();
-                        setUser(freshUser);
-                        localStorage.setItem('user', JSON.stringify(freshUser));
-                    } catch (error) {
-                        console.error('Failed to fetch user profile:', error);
-                    }
+                } else {
+                    setUser(null);
                 }
             } catch (error) {
                 console.error('Failed to load user:', error);
+                // Clear potentially corrupted data
                 localStorage.removeItem('user');
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
+                setUser(null);
             } finally {
                 setIsLoading(false);
             }
@@ -73,10 +70,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = async () => {
         try {
             const refreshToken = localStorage.getItem('refresh_token');
-            await authService.logout(refreshToken || undefined);
+            if (refreshToken) {
+                await authService.logout(refreshToken);
+            }
         } catch (error) {
-            // Silently handle logout errors
-            console.log('Session cleared locally');
+            console.error('Logout error:', error);
         } finally {
             setUser(null);
             localStorage.removeItem('user');
@@ -93,6 +91,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const refreshProfile = async () => {
+        try {
+            const freshUser = await authService.getProfile();
+            setUser(freshUser);
+            localStorage.setItem('user', JSON.stringify(freshUser));
+        } catch (error: any) {
+            console.error('Failed to refresh profile:', error);
+
+            // If token is invalid, clear authentication
+            if (error.response?.status === 403 || error.response?.status === 401) {
+                console.log('Token invalid during refresh, clearing authentication');
+                await logout();
+            }
+            throw error;
+        }
+    };
+
     const value = {
         user,
         isAuthenticated: !!user,
@@ -100,6 +115,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         logout,
         updateUser,
+        refreshProfile,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

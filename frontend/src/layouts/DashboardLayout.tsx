@@ -7,12 +7,15 @@ import Footer from "@/components/common/Footer";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  userRole: "student" | "staff" | "admin";
+  userRole?: "student" | "staff" | "admin";
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userRole }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, userRole: propUserRole }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  // Use prop userRole if provided, otherwise use user's role from context
+  const userRole = propUserRole || (user?.role as "student" | "staff" | "admin");
 
   const handleSidebarItemClick = (_itemId: string, path: string) => {
     navigate(path);

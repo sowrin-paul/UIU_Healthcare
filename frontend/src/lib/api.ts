@@ -29,8 +29,8 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // If error is 401 and we haven't tried to refresh yet
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // If error is 401 or 403 and we haven't tried to refresh yet
+        if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
@@ -50,11 +50,20 @@ api.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${access}`;
                 return api(originalRequest);
             } catch (refreshError) {
-                // Refresh failed, logout user
+                // Refresh failed, logout user silently
+                console.log('Token refresh failed, clearing authentication');
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+
+                // Redirect to login if on a protected route
+                if (window.location.pathname.includes('/dashboard') || 
+                    window.location.pathname.includes('/appointments') ||
+                    window.location.pathname.includes('/records') ||
+                    window.location.pathname.includes('/pharmacy')) {
+                    window.location.href = '/login';
+                }
+
                 return Promise.reject(refreshError);
             }
         }

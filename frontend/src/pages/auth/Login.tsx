@@ -49,7 +49,7 @@ export const LoginPage: React.FC = () => {
         // UIU ID validation
         if (!formData.uiuId.trim()) {
             newErrors.uiuId = 'UIU ID is required';
-        } else if (!/^(011\d{6}|STAFF-\d{6}|DOC-\d{6}|ADMIN-\d{6}|admin)$/.test(formData.uiuId)) {
+        } else if (!/^(011\d{6}|STAFF\d{3}|DOC\d{3}|ADMIN\d{3}|admin)$/.test(formData.uiuId)) {
             newErrors.uiuId = 'Invalid UIU ID format';
         }
 

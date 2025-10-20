@@ -14,6 +14,10 @@ const StudentDashboard = lazy(() => import('@/pages/dashboard/StudentDashboard')
 const StaffDashboard = lazy(() => import('@/pages/dashboard/StaffDashboard'));
 const AdminDashboard = lazy(() => import('@/pages/dashboard/AdminDashboard'));
 
+// Appointment pages
+const AppointmentsPage = lazy(() => import('@/pages/appointment/AppointmentsPage'));
+const BookAppointmentPage = lazy(() => import('@/pages/appointment/BookAppointments'));
+
 // Loading component
 const LoadingSpinner = () => (
     <div className="min-h-screen flex items-center justify-center">
@@ -98,7 +102,7 @@ const AppRoutes: React.FC = () => {
 
                 {/* Protected Routes - Student Dashboard */}
                 <Route
-                    path="/dashboard/student/*"
+                    path="/dashboard/student"
                     element={
                         <ProtectedRoute allowedRoles={['student']}>
                             <DashboardLayout userRole="student">
@@ -108,13 +112,57 @@ const AppRoutes: React.FC = () => {
                     }
                 />
 
+                {/* Student/Staff - Appointments */}
+                <Route
+                    path="/appointments"
+                    element={
+                        <ProtectedRoute allowedRoles={['student', 'staff']}>
+                            <DashboardLayout>
+                                <AppointmentsPage />
+                            </DashboardLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/appointments/book"
+                    element={
+                        <ProtectedRoute allowedRoles={['student']}>
+                            <DashboardLayout>
+                                <BookAppointmentPage />
+                            </DashboardLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/appointments/my"
+                    element={
+                        <ProtectedRoute allowedRoles={['student', 'staff']}>
+                            <DashboardLayout>
+                                <AppointmentsPage />
+                            </DashboardLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
                 {/* Protected Routes - Staff Dashboard */}
                 <Route
-                    path="/dashboard/staff/*"
+                    path="/dashboard/staff"
                     element={
                         <ProtectedRoute allowedRoles={['staff']}>
                             <DashboardLayout userRole="staff">
                                 <StaffDashboard />
+                            </DashboardLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Staff - Appointments */}
+                <Route
+                    path="/staff/appointments"
+                    element={
+                        <ProtectedRoute allowedRoles={['staff']}>
+                            <DashboardLayout>
+                                <AppointmentsPage />
                             </DashboardLayout>
                         </ProtectedRoute>
                     }
