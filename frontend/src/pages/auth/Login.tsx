@@ -5,6 +5,11 @@ import { Eye, EyeOff, User, Shield, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+<<<<<<< HEAD
+=======
+import { useAuth } from '@/hooks/useAuth';
+import authService from '../../services/authServices';
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
 import uiuLogo from '../../assets/logo/uiu_logo.png';
 
@@ -23,6 +28,10 @@ interface LoginErrors {
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+<<<<<<< HEAD
+=======
+    const { login: authLogin } = useAuth();
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
     // Form state
     const [formData, setFormData] = useState<LoginFormData>({
@@ -36,7 +45,11 @@ export const LoginPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loginAttempts, setLoginAttempts] = useState(0);
 
+<<<<<<< HEAD
     const from = (location.state as { from?: string })?.from || '/dashboard';
+=======
+    // const from = (location.state as { from?: string })?.from || '/dashboard';
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
     const messageFromState = (location.state as { message?: string })?.message;
 
     // Basic validation function
@@ -46,7 +59,11 @@ export const LoginPage: React.FC = () => {
         // UIU ID validation
         if (!formData.uiuId.trim()) {
             newErrors.uiuId = 'UIU ID is required';
+<<<<<<< HEAD
         } else if (!/^(011\d{5}|STAFF-\d{3}|DOC-\d{3}|ADMIN-\d{3}|admin)$/.test(formData.uiuId)) {
+=======
+        } else if (!/^(011\d{6}|STAFF\d{3}|DOC\d{3}|ADMIN\d{3}|admin)$/.test(formData.uiuId)) {
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
             newErrors.uiuId = 'Invalid UIU ID format';
         }
 
@@ -65,8 +82,13 @@ export const LoginPage: React.FC = () => {
     const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
 
+<<<<<<< HEAD
         // Clear error when user starts typing
         if (errors[field]) {
+=======
+        // Clear error when user starts typing (only for string fields)
+        if (field !== 'rememberMe' && errors[field as keyof LoginErrors]) {
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
             setErrors(prev => ({ ...prev, [field]: undefined }));
         }
     };
@@ -83,6 +105,7 @@ export const LoginPage: React.FC = () => {
         setLoginAttempts(prev => prev + 1);
 
         try {
+<<<<<<< HEAD
             // Mock API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -116,13 +139,54 @@ export const LoginPage: React.FC = () => {
                 navigate('/dashboard/student', { replace: false });
             } else if (role === 'staff') {
                 navigate('/dashboard/staff', { replace: false });
+=======
+            // Call real API
+            const response = await authService.login({
+                uiuId: formData.uiuId,
+                password: formData.password,
+            });
+
+            console.log('Login successful:', response);
+
+            // Store tokens
+            localStorage.setItem('access_token', response.tokens.access);
+            localStorage.setItem('refresh_token', response.tokens.refresh);
+            localStorage.setItem('user', JSON.stringify(response.user));
+
+            // Update auth context with proper role type
+            const userWithRole = {
+                ...response.user,
+                role: response.user.role.toLowerCase() as 'student' | 'staff' | 'admin'
+            };
+            authLogin(userWithRole);
+
+            // Role-based navigation
+            const role = response.user.role.toLowerCase();
+            if (role === 'student') {
+                navigate('/dashboard/student', { replace: true });
+            } else if (role === 'staff') {
+                navigate('/dashboard/staff', { replace: true });
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
             } else if (role === 'admin') {
                 navigate('/dashboard/admin', { replace: true });
             }
 
+<<<<<<< HEAD
         } catch (error) {
             console.error('Login error:', error);
             setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+=======
+        } catch (error: unknown) {
+            console.error('Login error:', error);
+
+            // Handle specific error messages from backend
+            const apiError = error as { error?: string };
+            if (apiError.error) {
+                setErrors({ general: apiError.error });
+            } else {
+                setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+            }
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
         } finally {
             setIsLoading(false);
         }

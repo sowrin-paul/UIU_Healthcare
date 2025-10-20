@@ -28,6 +28,13 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+<<<<<<< HEAD
+=======
+# Custom User Model
+AUTH_USER_MODEL = 'api.User'
+
+
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,6 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+<<<<<<< HEAD
+=======
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',  # For token blacklisting on logout
+    'corsheaders',
+    'django_filters',
+    'api',
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 ]
 
 MIDDLEWARE = [
@@ -48,6 +63,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+<<<<<<< HEAD
+=======
+    'corsheaders.middleware.CorsMiddleware',
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -123,7 +142,38 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
+<<<<<<< HEAD
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+=======
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+}
+
+# JWT Settings
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=4320),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf

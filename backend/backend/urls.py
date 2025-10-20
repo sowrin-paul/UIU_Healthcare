@@ -20,5 +20,9 @@ from api import urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+<<<<<<< HEAD
     path('', include('api.urls')),
+=======
+    path('api/', include('api.urls')),
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 ]

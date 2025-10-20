@@ -4,8 +4,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+<<<<<<< HEAD
 from .serializers import RegisterSerializer, UserSerializer
 from .models import User
+=======
+from django_filters.rest_framework import DjangoFilterBackend
+from .serializers import RegisterSerializer, UserSerializer, AppointmentSerializer, BookAppointmentSerializer, UpdateAppointmentStatusSerializer
+from .models import User, Appointment
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
 
 class RegisterView(generics.CreateAPIView):
@@ -23,15 +29,27 @@ class RegisterView(generics.CreateAPIView):
 
         return Response({
             'user': UserSerializer(user).data,
+<<<<<<< HEAD
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'message': 'User registered successfully'
         }, status=status.HTTP_201_CREATED)
 
+=======
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            },
+            'message': 'Registration successful! Please check your email for verification.'
+        }, status=status.HTTP_201_CREATED)
+
+
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 class LoginView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
+<<<<<<< HEAD
         username = request.data.get('username')
         password = request.data.get('password')
 
@@ -43,15 +61,49 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
 
         if user is None:
+=======
+        uiu_id = request.data.get('uiuId')
+        password = request.data.get('password')
+
+        if not uiu_id or not password:
+            return Response({
+                'error': 'Please provide both UIU ID and password'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(uiu_id=uiu_id)
+            authenticated_user = authenticate(
+                username=user.username,
+                password=password
+            )
+
+            if authenticated_user is None:
+                return Response({
+                    'error': 'Invalid credentials'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            user = authenticated_user
+
+        except User.DoesNotExist:
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
             return Response({
                 'error': 'Invalid credentials'
             }, status=status.HTTP_401_UNAUTHORIZED)
 
+<<<<<<< HEAD
+=======
+        if not user.is_active:
+            return Response({
+                'error': 'Account is deactivated'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
 
         return Response({
             'user': UserSerializer(user).data,
+<<<<<<< HEAD
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'message': 'Login successful'
@@ -59,6 +111,18 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
+=======
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            },
+            'message': 'Login successful'
+        }, status=status.HTTP_200_OK)
+
+
+class LogoutView(APIView):
+    permission_classes = (AllowAny,)
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
     def post(self, request):
         try:
@@ -66,6 +130,7 @@ class LogoutView(APIView):
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
+<<<<<<< HEAD
             return Response({
                 'message': 'Logout successful'
             }, status=status.HTTP_200_OK)
@@ -73,6 +138,20 @@ class LogoutView(APIView):
             return Response({
                 'error': 'Invalid token'
             }, status=status.HTTP_400_BAD_REQUEST)
+=======
+                return Response({
+                    'message': 'Logout successful'
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'message': 'Logout successful'
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'message': 'Logout successful'
+            }, status=status.HTTP_200_OK)
+
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
@@ -80,3 +159,124 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+<<<<<<< HEAD
+=======
+
+
+class DoctorListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(role='STAFF')
+
+
+class AppointmentListView(generics.ListAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status', 'date', 'emergency']
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'STUDENT':
+            return Appointment.objects.filter(patient=user)
+        elif user.role == 'STAFF':
+            return Appointment.objects.filter(doctor=user)
+        else:  # admin
+            return Appointment.objects.all()
+
+
+class BookAppointmentView(generics.CreateAPIView):
+    serializer_class = BookAppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        appointment = serializer.save()
+
+        return Response(
+            AppointmentSerializer(appointment).data,
+            status=status.HTTP_201_CREATED
+        )
+
+
+class AppointmentDetailView(generics.RetrieveAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'STUDENT':
+            return Appointment.objects.filter(patient=user)
+        elif user.role == 'STAFF':
+            return Appointment.objects.filter(doctor=user)
+        else:
+            return Appointment.objects.all()
+
+
+class UpdateAppointmentStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk)
+
+            # Check permissions
+            user = request.user
+            if user.role == 'STUDENT' and appointment.patient != user:
+                return Response(
+                    {'error': 'You do not have permission to update this appointment'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            elif user.role == 'STAFF' and appointment.doctor != user:
+                return Response(
+                    {'error': 'You do not have permission to update this appointment'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            serializer = UpdateAppointmentStatusSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            appointment.status = serializer.validated_data['status']
+            appointment.save()
+
+            return Response(
+                AppointmentSerializer(appointment).data,
+                status=status.HTTP_200_OK
+            )
+        except Appointment.DoesNotExist:
+            return Response(
+                {'error': 'Appointment not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class CancelAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk)
+
+            # Only patient can cancel
+            if request.user != appointment.patient:
+                return Response(
+                    {'error': 'Only the patient can cancel this appointment'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            appointment.status = 'cancelled'
+            appointment.save()
+
+            return Response(
+                AppointmentSerializer(appointment).data,
+                status=status.HTTP_200_OK
+            )
+        except Appointment.DoesNotExist:
+            return Response(
+                {'error': 'Appointment not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+>>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
