@@ -13,10 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-<<<<<<< HEAD
-=======
 import authService from '@/services/authServices';
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
 import uiuLogo from '../../assets/logo/uiu_logo.png';
 
@@ -77,13 +74,6 @@ export const RegisterPage: React.FC = () => {
         // UIU ID validation
         if (!formData.uiuId.trim()) {
             newErrors.uiuId = 'UIU ID is required';
-<<<<<<< HEAD
-        } else if (!/^011\d{5}$/.test(formData.uiuId)) {
-            newErrors.uiuId = 'Invalid UIU ID format. Use: 011xxxxx (8 digits total)';
-        }
-
-        // Email validation
-=======
         } else if (!/^(011\d{6}|DOC\d{4}|STAFF\d{3}|admin)$/.test(formData.uiuId)) {
             newErrors.uiuId = 'Invalid ID format. Use: 011xxxxx (Student), DOCxxx (Doctor), or STAFFxxx (Staff)';
         }
@@ -96,18 +86,12 @@ export const RegisterPage: React.FC = () => {
         // } else if (!formData.email.includes('@student.uiu.ac.bd') && !formData.email.includes('@uiu.ac.bd')) {
         //     newErrors.email = 'Email must be a valid UIU email address (@uiu.ac.bd or @student.uiu.ac.bd)';
         // }
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
         if (!formData.email.trim()) {
             newErrors.email = 'Email is required';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Invalid email format';
-<<<<<<< HEAD
-        } else if (!formData.email.includes('@student.uiu.ac.bd') && !formData.email.includes('@uiu.ac.bd')) {
-            newErrors.email = 'Email must be a valid UIU email address (@uiu.ac.bd or @student.uiu.ac.bd)';
-=======
         } else if (!formData.email.toLowerCase().endsWith('.uiu.ac.bd')) {
             newErrors.email = 'Email must be a valid UIU email address (@bscse.uiu.ac.bd, @uiu.ac.bd)';
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
         }
 
         // Phone validation
@@ -162,14 +146,7 @@ export const RegisterPage: React.FC = () => {
 
             setUiuIdAvailability('checking');
             try {
-<<<<<<< HEAD
-                await new Promise(resolve => setTimeout(resolve, 1000)); // needed to replace
-
-                // Mock availability check
-                const isAvailable = Math.random() > 0.3;
-=======
                 const isAvailable = await authService.checkUIUIdAvailability(uiuId);
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
                 setUiuIdAvailability(isAvailable ? 'available' : 'unavailable');
             } catch (error) {
                 console.error('UIU ID check error:', error);
@@ -201,11 +178,6 @@ export const RegisterPage: React.FC = () => {
         setIsLoading(true);
 
         try {
-<<<<<<< HEAD
-            await new Promise(resolve => setTimeout(resolve, 2000)); // needed to replace
-
-            console.log('Registration data:', formData);
-=======
             // Call real API
             const response = await authService.register({
                 name: formData.name,
@@ -222,7 +194,6 @@ export const RegisterPage: React.FC = () => {
             localStorage.setItem('access_token', response.tokens.access);
             localStorage.setItem('refresh_token', response.tokens.refresh);
             localStorage.setItem('user', JSON.stringify(response.user));
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
             setRegistrationSuccess(true);
 
@@ -236,11 +207,6 @@ export const RegisterPage: React.FC = () => {
                 });
             }, 3000);
 
-<<<<<<< HEAD
-        } catch (error) {
-            console.error('Registration error:', error);
-            setErrors({ ...errors, acceptTerms: 'Registration failed. Please try again.' });
-=======
         } catch (error: any) {
             console.error('Registration error:', error);
 
@@ -275,7 +241,6 @@ export const RegisterPage: React.FC = () => {
             }
 
             setErrors(newErrors);
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
         } finally {
             setIsLoading(false);
         }
@@ -408,11 +373,7 @@ export const RegisterPage: React.FC = () => {
                                                 <Input
                                                     id="uiuId"
                                                     type="text"
-<<<<<<< HEAD
-                                                    placeholder="011xxxxx"
-=======
                                                     placeholder="011xxxxxx"
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
                                                     value={formData.uiuId}
                                                     onChange={(e) => handleInputChange('uiuId', e.target.value)}
                                                     className={`${errors.uiuId ? 'border-red-500' : ''} ${uiuIdAvailability === 'available' ? 'border-green-500' : ''
@@ -441,11 +402,7 @@ export const RegisterPage: React.FC = () => {
                                                 <p className="text-xs text-green-600">UIU ID is available</p>
                                             )}
                                             {!errors.uiuId && !uiuIdAvailability && (
-<<<<<<< HEAD
-                                                <p className="text-xs text-gray-500">Format: 011xxxxx (8 digits total)</p>
-=======
                                                 <p className="text-xs text-gray-500">Format: 011xxxxx (9 digits total)</p>
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
                                             )}
                                         </div>
 

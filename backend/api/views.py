@@ -4,14 +4,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-<<<<<<< HEAD
-from .serializers import RegisterSerializer, UserSerializer
-from .models import User
-=======
 from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import RegisterSerializer, UserSerializer, AppointmentSerializer, BookAppointmentSerializer, UpdateAppointmentStatusSerializer
 from .models import User, Appointment
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
 
 class RegisterView(generics.CreateAPIView):
@@ -29,13 +24,6 @@ class RegisterView(generics.CreateAPIView):
 
         return Response({
             'user': UserSerializer(user).data,
-<<<<<<< HEAD
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'message': 'User registered successfully'
-        }, status=status.HTTP_201_CREATED)
-
-=======
             'tokens': {
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
@@ -44,24 +32,10 @@ class RegisterView(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 class LoginView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-<<<<<<< HEAD
-        username = request.data.get('username')
-        password = request.data.get('password')
-
-        if not username or not password:
-            return Response({
-                'error': 'Please provide both username and password'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        user = authenticate(username=username, password=password)
-
-        if user is None:
-=======
         uiu_id = request.data.get('uiuId')
         password = request.data.get('password')
 
@@ -85,33 +59,20 @@ class LoginView(APIView):
             user = authenticated_user
 
         except User.DoesNotExist:
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
             return Response({
                 'error': 'Invalid credentials'
             }, status=status.HTTP_401_UNAUTHORIZED)
 
-<<<<<<< HEAD
-=======
         if not user.is_active:
             return Response({
                 'error': 'Account is deactivated'
             }, status=status.HTTP_403_FORBIDDEN)
 
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
 
         return Response({
             'user': UserSerializer(user).data,
-<<<<<<< HEAD
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'message': 'Login successful'
-        }, status=status.HTTP_200_OK)
-
-class LogoutView(APIView):
-    permission_classes = (IsAuthenticated,)
-=======
             'tokens': {
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
@@ -122,7 +83,6 @@ class LogoutView(APIView):
 
 class LogoutView(APIView):
     permission_classes = (AllowAny,)
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
     def post(self, request):
         try:
@@ -130,15 +90,6 @@ class LogoutView(APIView):
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-<<<<<<< HEAD
-            return Response({
-                'message': 'Logout successful'
-            }, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({
-                'error': 'Invalid token'
-            }, status=status.HTTP_400_BAD_REQUEST)
-=======
                 return Response({
                     'message': 'Logout successful'
                 }, status=status.HTTP_200_OK)
@@ -151,7 +102,6 @@ class LogoutView(APIView):
                 'message': 'Logout successful'
             }, status=status.HTTP_200_OK)
 
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
@@ -159,8 +109,6 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-<<<<<<< HEAD
-=======
 
 
 class DoctorListView(generics.ListAPIView):
@@ -279,4 +227,3 @@ class CancelAppointmentView(APIView):
                 {'error': 'Appointment not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf

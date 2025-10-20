@@ -1,28 +1,4 @@
-<<<<<<< HEAD
-import React from "react";
 
-interface NavbarProps {
-  user?: { name: string };
-  onLogout?: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
-  return (
-    <nav className="bg-white shadow p-4 flex justify-between">
-      <div className="font-bold text-lg">UIU HealthCare</div>
-      <div>
-        {user ? (
-          <>
-            <span className="mr-4">{user.name}</span>
-            <button onClick={onLogout} className="text-red-500">
-              Logout
-            </button>
-          </>
-        ) : (
-          <span>Guest</span>
-        )}
-      </div>
-=======
 import React, { useState } from 'react';
 import { Bell, Search, User, LogOut, Settings, ChevronDown, Menu, X, Calendar, FileText, Pill, Users, BarChart3, AlertTriangle, Heart, Stethoscope, Shield, Activity } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -481,7 +457,6 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, notifications = 0, user
           </div>
         </div>
       )}
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
     </nav>
   );
 };

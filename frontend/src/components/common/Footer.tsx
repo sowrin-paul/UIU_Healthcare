@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import React from "react";
-
-const Footer: React.FC = () => {
-  return (
-    <footer className="bg-gray-100 p-4 text-center text-gray-600">
-      © 2025 UIU HealthCare. All rights reserved.
-=======
 import React from 'react';
 import { Link } from 'react-router-dom';
 import uiuLogo from '../../assets/logo/uiu_logo.png';
@@ -80,13 +72,8 @@ export const LandingFooter: React.FC = () => {
           <p>© 2025 United International University. All rights reserved.</p>
         </div>
       </div>
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
     </footer>
   );
 };
 
-<<<<<<< HEAD
-export default Footer;
-=======
 export default LandingFooter;
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf

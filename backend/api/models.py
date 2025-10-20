@@ -1,12 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-<<<<<<< HEAD
-=======
 # User model
 
 
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
 class User(AbstractUser):
     ROLE_CHOICES = (
         ('STUDENT', 'Student'),
@@ -18,21 +15,13 @@ class User(AbstractUser):
     role = models.CharField(
         max_length=10, choices=ROLE_CHOICES, default='STUDENT')
     phone = models.CharField(max_length=15, blank=True, null=True)
-<<<<<<< HEAD
-=======
     department = models.CharField(max_length=100, blank=True, null=True)
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
     date_of_birth = models.DateField(blank=True, null=True)
     blood_group = models.CharField(max_length=5, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=15, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-<<<<<<< HEAD
-
-    def __str__(self):
-        return f"{self.uiu_id} - {self.get_full_name()}"
-=======
     avatar = models.URLField(blank=True, null=True)
 
     groups = models.ManyToManyField(
@@ -90,4 +79,3 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.patient.name} - {self.doctor.name} - {self.date}"
->>>>>>> 2da7cf151fc45dd7781a4824a35686784136efbf
